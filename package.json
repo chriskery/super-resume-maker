@@ -1,0 +1,14 @@
+{
+  "name": "super-resume-maker",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && node server.js",
+    "dev:client": "cd client && npx vite",
+    "build": "cd client && npx vite build",
+    "install:all": "cd server && npm install && cd ../client && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
