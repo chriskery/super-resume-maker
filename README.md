@@ -41,20 +41,6 @@ npm run dev
 npm run build
 ```
 
-## 部署
-
-### 同步到远程服务器
-
-```bash
-make sync
-```
-
-### 在远程服务器启动
-
-```bash
-make start
-```
-
 ## 项目结构
 
 ```

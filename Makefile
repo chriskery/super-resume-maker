@@ -10,7 +10,7 @@ sync:
 		./ $(REMOTE_HOST):$(REMOTE_DIR)/
 
 start:
-	ssh $(REMOTE_HOST) "cd $(REMOTE_DIR) && npm install --prefix server && npm install --prefix client && npm run dev"
+	npm run install:all && npm install && npm run dev
 
 test:
 	cd server && npx jest --forceExit
