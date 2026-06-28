@@ -26,7 +26,7 @@ vi.mock('../services/api', () => ({
 const { default: ResumeCard } = await import('../components/ResumeCard');
 const { default: CreateResumeModal } = await import('../components/CreateResumeModal');
 
-const emptyOthers = { certificates: [], languages: [], hobbies: [], activities: [] };
+const emptyOthers = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
 
 const mockResume: Resume = {
   id: 'test-id-1',

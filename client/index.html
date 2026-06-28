@@ -10,27 +10,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-<!DOCTYPE html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Super Resume Maker</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script>
-      window.onerror = function(msg, src, line, col, err) {
-        document.getElementById('root').innerHTML =
-          '<div style="padding:40px;font-family:monospace;color:red">' +
-          '<h2>Runtime Error</h2><pre>' + msg + '\n' + src + ':' + line + '\n' + (err && err.stack || '') + '</pre></div>';
-      };
-      window.addEventListener('unhandledrejection', function(e) {
-        document.getElementById('root').innerHTML =
-          '<div style="padding:40px;font-family:monospace;color:red">' +
-          '<h2>Unhandled Rejection</h2><pre>' + e.reason + '</pre></div>';
-      });
-    </script>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>

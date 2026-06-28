@@ -1,9 +1,10 @@
 import React from 'react';
-import { Resume } from '../types/resume';
+import { Resume, OtherInfo } from '../types/resume';
 import SectionTitle from './components/SectionTitle';
 import ExperienceItem from './components/ExperienceItem';
 
 const THEME = '#2563eb';
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
 
 // 简单的 SVG 图标
 const icons = {
@@ -52,7 +53,8 @@ const icons = {
 };
 
 const ProfessionalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills, others } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const skills = others?.skills || resume.skills || [];
 
   return (
     <div
@@ -73,29 +75,15 @@ const ProfessionalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
           gap: '20px',
           marginBottom: '20px',
           paddingBottom: '16px',
           borderBottom: `2px solid ${THEME}`,
         }}
       >
-        {/* 头像 */}
-        {personalInfo.photo && (
-          <img
-            src={personalInfo.photo}
-            alt="avatar"
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              flexShrink: 0,
-              border: `2px solid ${THEME}`,
-            }}
-          />
-        )}
-        {/* 右侧信息 */}
+        {/* 左侧信息 */}
         <div style={{ flex: 1 }}>
           <h1
             style={{
@@ -143,6 +131,21 @@ const ProfessionalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             </div>
           )}
         </div>
+        {/* 右上角头像 */}
+        {personalInfo.photo && (
+          <img
+            src={personalInfo.photo}
+            alt="avatar"
+            style={{
+              width: '88px',
+              height: '88px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              flexShrink: 0,
+              border: `2px solid ${THEME}`,
+            }}
+          />
+        )}
       </div>
 
       {/* ===== 个人总结 ===== */}

@@ -165,9 +165,10 @@ function serializeResumeToText(resume) {
       (p.highlights || []).forEach((h) => { if (h.trim()) lines.push(`  · ${h}`); });
     });
   }
-  if (resume.skills?.length) {
+  const skillsList = resume.others?.skills || resume.skills || [];
+  if (skillsList.length) {
     lines.push('\n【技能】');
-    resume.skills.forEach((s) => lines.push(`- ${s.category || '未分类'}: ${s.items || ''}`));
+    skillsList.forEach((s) => lines.push(`- ${s.category || '未分类'}: ${s.items || ''}`));
   }
   if (resume.awards?.length) {
     lines.push('\n【荣誉奖项】');
@@ -265,7 +266,9 @@ const IMPORT_SYSTEM_PROMPT = `你是一个专业的简历解析助手。请将�
     { "name": "", "role": "", "department": "", "location": "", "startDate": "", "endDate": "", "highlights": [] }
   ],
   "awards": ["奖项1"],
-  "skills": [{ "category": "分类", "items": "技能1, 技能2" }]
+  "others": {
+    "skills": [{ "category": "分类", "items": "技能1, 技能2" }]
+  }
 }
 
 注意事项：

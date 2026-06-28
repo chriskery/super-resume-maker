@@ -4,6 +4,7 @@ import FormInput from '../form/FormInput';
 import FormTextArea from '../form/FormTextArea';
 import DynamicList from '../form/DynamicList';
 import MonthPicker from '../form/MonthPicker';
+import SummaryLine from '../form/SummaryLine';
 
 interface EducationFormProps {
   data: Education[];
@@ -117,15 +118,14 @@ export default function EducationForm({ data, onChange }: EducationFormProps) {
       }}
       addLabel="添加教育经历"
       renderSummary={(item) => (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium text-gray-700">{item.school || '未填写学校'}</span>
-          <span className="text-gray-400">·</span>
-          <span className="text-gray-700">{item.degree || '未填写学历'}</span>
-          <span className="text-gray-400">·</span>
-          <span className="text-gray-700">{item.major || '未填写专业'}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-700">{item.startDate || '开始时间'} - {item.endDate || '至今'}</span>
-        </div>
+        <SummaryLine
+          segments={[
+            item.school || '未填写学校',
+            item.degree || '未填写学历',
+            item.major || '未填写专业',
+          ]}
+          dateRange={{ start: item.startDate, end: item.endDate }}
+        />
       )}
       renderItem={(item, _index, onUpdate) => (
         <div className="space-y-3">

@@ -9,7 +9,6 @@ import WorkExperienceForm from '../components/sections/WorkExperienceForm';
 import ProjectExperienceForm from '../components/sections/ProjectExperienceForm';
 import OrganizationForm from '../components/sections/OrganizationForm';
 import AwardsForm from '../components/sections/AwardsForm';
-import SkillsForm from '../components/sections/SkillsForm';
 import EducationForm from '../components/sections/EducationForm';
 import FormTextArea from '../components/form/FormTextArea';
 import AIPolishButton from '../components/form/AIPolishButton';
@@ -90,11 +89,17 @@ const Icon = {
 };
 
 /* ─── Toast ─── */
-function Toast({ message, onClose }: { message: string; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 2500); return () => clearTimeout(t); }, [onClose]);
+function Toast({ message, type = 'success', onClose }: { message: string; type?: 'success' | 'error'; onClose: () => void }) {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  useEffect(() => { const t = setTimeout(() => onCloseRef.current(), 2500); return () => clearTimeout(t); }, []);
+  const bgColor = type === 'error' ? 'bg-red-600' : 'bg-green-600';
+  const icon = type === 'error'
+    ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
   return (
-    <div className="fixed top-20 right-6 z-50 bg-green-600 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm flex items-center gap-2 animate-[fadeIn_0.2s_ease-out]">
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+    <div className={`fixed top-20 right-6 z-50 ${bgColor} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm flex items-center gap-2 animate-[fadeIn_0.2s_ease-out]`}>
+      {icon}
       {message}
     </div>
   );
@@ -281,37 +286,42 @@ function AwardsDisplay({ items, onDelete }: { items: string[]; onDelete: (i: num
   );
 }
 
-function SkillsDisplay({ items, onDelete }: { items: Skill[]; onDelete: (i: number) => void }) {
-  if (items.length === 0) return <div className="text-sm text-gray-400 py-1">暂无技能</div>;
-  return (
-    <div className="space-y-1.5 py-1">
-      {items.map((s, i) => (
-        <div key={i} className="flex items-start justify-between group">
-          <div className="flex-1 min-w-0 mr-2">
-            <span className="text-sm font-medium text-gray-800">{s.category || '未分类'}</span>
-            {s.items && <span className="text-xs text-gray-500 ml-1">— {s.items}</span>}
-          </div>
-          <button type="button" onClick={() => onDelete(i)} className="p-1 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0 mt-0.5" title="删除">
-            {Icon.trash}
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 /* ─── Others Display ─── */
 function OthersDisplay({ others, onUpdate }: { others: OtherInfo; onUpdate: (o: OtherInfo) => void }) {
-  const sections: { key: keyof OtherInfo; label: string }[] = [
+  const skills = others.skills || [];
+  const sections: { key: keyof Omit<OtherInfo, 'skills'>; label: string }[] = [
     { key: 'certificates', label: '证书/执照' },
     { key: 'languages', label: '语言' },
     { key: 'hobbies', label: '兴趣爱好' },
     { key: 'activities', label: '活动' },
   ];
-  const hasAny = sections.some(s => others[s.key].length > 0);
+  const hasAny = skills.length > 0 || sections.some(s => others[s.key].length > 0);
   if (!hasAny) return <div className="text-sm text-gray-400 py-1">暂无其他信息</div>;
   return (
     <div className="space-y-2 py-1">
+      {skills.length > 0 && (
+        <div>
+          <div className="text-xs font-medium text-gray-500 mb-1">专业技能</div>
+          <div className="space-y-1">
+            {skills.map((s, i) => (
+              <div key={i} className="flex items-start justify-between group text-sm text-gray-700">
+                <div className="flex-1 min-w-0 mr-2 truncate">
+                  <span className="font-medium">• {s.category || '未分类'}</span>
+                  {s.items && <span className="text-gray-500 ml-1">— {s.items}</span>}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onUpdate({ ...others, skills: skills.filter((_, idx) => idx !== i) })}
+                  className="p-1 text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                  title="删除"
+                >
+                  {Icon.trash}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {sections.map(({ key, label }) => {
         const items = others[key];
         if (items.length === 0) return null;
@@ -342,7 +352,8 @@ function OthersDisplay({ others, onUpdate }: { others: OtherInfo; onUpdate: (o: 
 
 /* ─── Others Form (edit mode) ─── */
 function OthersForm({ others, onChange }: { others: OtherInfo; onChange: (o: OtherInfo) => void }) {
-  const sections: { key: keyof OtherInfo; label: string; placeholder: string }[] = [
+  const skills = others.skills || [];
+  const sections: { key: keyof Omit<OtherInfo, 'skills'>; label: string; placeholder: string }[] = [
     { key: 'certificates', label: '证书/执照', placeholder: '如：CFA（二级）' },
     { key: 'languages', label: '语言', placeholder: '如：英语（CET-6）' },
     { key: 'hobbies', label: '兴趣爱好', placeholder: '如：篮球（校队队长）' },
@@ -351,6 +362,56 @@ function OthersForm({ others, onChange }: { others: OtherInfo; onChange: (o: Oth
 
   return (
     <div className="space-y-4">
+      {/* 专业技能 (placed first as it's most important) */}
+      <div>
+        <div className="text-sm font-medium text-gray-700 mb-1.5">专业技能</div>
+        <div className="space-y-3">
+          {skills.map((skill, index) => (
+            <div key={index} className="relative border border-gray-200 rounded-lg p-3 bg-gray-50/50">
+              <button
+                type="button"
+                onClick={() => onChange({ ...others, skills: skills.filter((_, i) => i !== index) })}
+                className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1"
+                title="删除"
+              >
+                {Icon.trash}
+              </button>
+              <div className="pr-6 space-y-2">
+                <input
+                  type="text"
+                  value={skill.category}
+                  onChange={(e) => {
+                    const arr = [...skills];
+                    arr[index] = { ...skill, category: e.target.value };
+                    onChange({ ...others, skills: arr });
+                  }}
+                  placeholder="技能类别，如：编程语言、框架工具"
+                  className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                />
+                <input
+                  type="text"
+                  value={skill.items}
+                  onChange={(e) => {
+                    const arr = [...skills];
+                    arr[index] = { ...skill, items: e.target.value };
+                    onChange({ ...others, skills: arr });
+                  }}
+                  placeholder="具体技能，逗号分隔，如：JavaScript, TypeScript, React"
+                  className="w-full border border-gray-200 rounded px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-300"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => onChange({ ...others, skills: [...skills, { category: '', items: '' }] })}
+          className="mt-1.5 text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1"
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+          添加技能分类
+        </button>
+      </div>
       {sections.map(({ key, label, placeholder }) => (
         <div key={key}>
           <div className="text-sm font-medium text-gray-700 mb-1.5">{label}</div>
@@ -584,7 +645,7 @@ export default function Editor() {
 
   const { resume, loading, error, save, isNew } = useResume(id);
   const previewRef = useRef<HTMLDivElement>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<SectionId | null>(null);
   const [showAIImport, setShowAIImport] = useState(false);
@@ -629,12 +690,24 @@ export default function Editor() {
 
   const initialTemplateId = searchParams.get('templateId') || 'professional';
   const [data, setData] = useState<Resume>(() => emptyResume(initialTemplateId));
-  const [previewData, setPreviewData] = useState<Resume>(() => emptyResume(initialTemplateId));
+  const dataLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (resume) {
-      setData(resume);
-      setPreviewData(resume);
+    if (resume && !dataLoadedRef.current) {
+      dataLoadedRef.current = true;
+      const normalized: Resume = {
+        ...resume,
+        others: { ...emptyOthers(), ...(resume.others ?? {}) },
+        personalInfo: resume.personalInfo ?? { name: '', phone: '', email: '', title: '' },
+        workExperience: resume.workExperience ?? [],
+        projectExperience: resume.projectExperience ?? [],
+        organizationExperience: resume.organizationExperience ?? [],
+        education: resume.education ?? [],
+        awards: resume.awards ?? [],
+        skills: resume.skills ?? [],
+        tags: resume.tags ?? [],
+      };
+      setData(normalized);
     }
   }, [resume]);
 
@@ -667,13 +740,23 @@ export default function Editor() {
   }, [isNew, searchParams]);
 
   const handleSave = useCallback(async () => {
+    // 保存前验证必填字段
+    const errors: string[] = [];
+    if (!data.personalInfo.name?.trim()) errors.push('姓名');
+    if (errors.length > 0) {
+      setToast({ message: `请先填写：${errors.join('、')}`, type: 'error' });
+      return;
+    }
     setSaving(true);
     try {
       const saved = await save(data);
-      setPreviewData(data); // sync preview after successful save
-      setToast('保存成功');
-      if (isNew && saved?.id) navigate(`/editor/${saved.id}`, { replace: true });
-    } catch { setToast('保存失败，请重试'); }
+      if (isNew && saved?.id) {
+        // Navigate first — the new page will show its own state; no toast needed here
+        navigate(`/editor/${saved.id}`, { replace: true });
+      } else {
+        setToast({ message: '保存成功', type: 'success' });
+      }
+    } catch (err) { console.error('Save failed:', err); setToast({ message: '保存失败，请重试', type: 'error' }); }
     finally { setSaving(false); }
   }, [data, save, isNew, navigate]);
 
@@ -691,23 +774,28 @@ export default function Editor() {
   };
 
   /* ─── Template ─── */
-  const templateInfo = getTemplate(previewData.templateId);
+  const templateInfo = getTemplate(data.templateId);
   const TemplateComponent = templateInfo?.component;
 
   /* ─── Preview scale ─── */
   const [previewScale, setPreviewScale] = useState(1);
   const previewContainerRef = useRef<HTMLDivElement>(null);
+  const obsRef = useRef<ResizeObserver | null>(null);
   const A4_WIDTH = 794;
   const A4_HEIGHT = 1122;
 
-  useEffect(() => {
-    const el = previewContainerRef.current;
+  const previewContainerCallback = useCallback((el: HTMLDivElement | null) => {
+    previewContainerRef.current = el;
+    if (obsRef.current) { obsRef.current.disconnect(); obsRef.current = null; }
     if (!el) return;
-    const update = () => setPreviewScale(Math.min(1, (el.clientWidth - 48) / A4_WIDTH));
+    const update = () => {
+      const scale = (el.clientWidth - 48) / A4_WIDTH;
+      if (scale > 0) setPreviewScale(Math.min(1, scale));
+    };
     update();
     const obs = new ResizeObserver(update);
     obs.observe(el);
-    return () => obs.disconnect();
+    obsRef.current = obs;
   }, []);
 
   if (loading && !resume) {
@@ -732,10 +820,7 @@ export default function Editor() {
     // ensure the section is expanded when editing
     setExpandedSections((prev) => new Set(prev).add(sid));
   };
-  const doneEdit = () => {
-    setEditingId(null);
-    setPreviewData(data); // sync preview after section save
-  };
+  const doneEdit = () => setEditingId(null);
   const hideSection = (sid: SectionId) => setHiddenSections((prev) => new Set(prev).add(sid));
   const showSection = (sid: SectionId) => setHiddenSections((prev) => { const n = new Set(prev); n.delete(sid); return n; });
   const isHidden = (sid: SectionId) => hiddenSections.has(sid);
@@ -913,18 +998,6 @@ export default function Editor() {
             </EditorSection>
             )}
 
-            {/* 技能 */}
-            {!isHidden('skills') && (
-            <EditorSection id="skills" editingId={editingId} onStartEdit={() => startEdit('skills')} onDoneEdit={doneEdit}
-              title="技能" icon={Icon.code} color="#4f46e5"
-              onAdd={() => { updateField('skills', [...data.skills, { category: '', items: '' }]); startEdit('skills'); }}
-              onHide={() => hideSection('skills')}
-              expanded={expandedSections.has('skills')} onToggleExpand={() => toggleExpand('skills')}
-              summary={<SkillsDisplay items={data.skills} onDelete={(i) => updateField('skills', data.skills.filter((_, idx) => idx !== i))} />}>
-              <SkillsForm data={data.skills} onChange={(v) => updateField('skills', v)} />
-            </EditorSection>
-            )}
-
             {/* 其他 */}
             {!isHidden('others') && (
             <EditorSection id="others" editingId={editingId} onStartEdit={() => startEdit('others')} onDoneEdit={doneEdit}
@@ -959,7 +1032,7 @@ export default function Editor() {
 
         {/* Right: Live Preview */}
         <div
-          ref={previewContainerRef}
+          ref={previewContainerCallback}
           className="flex-1 bg-gray-200 overflow-auto relative"
           style={{ padding: '16px' }}
         >
@@ -987,7 +1060,7 @@ export default function Editor() {
               }}
             >
               {TemplateComponent ? (
-                <TemplateComponent resume={filterByHidden(mergeWithMock(previewData), hiddenSections)} />
+                <TemplateComponent resume={filterByHidden(mergeWithMock(data), hiddenSections)} />
               ) : (
                 <div className="flex items-center justify-center" style={{ width: '210mm', minHeight: '297mm' }}>
                   <p className="text-gray-400 text-sm">请选择模板</p>
@@ -1007,6 +1080,9 @@ export default function Editor() {
                 defaultExpanded
                 onClose={() => setShowAIImport(false)}
                 onSuccess={(parsed: ParsedResumeData) => {
+                  const importedSkills = parsed.others?.skills?.length ? parsed.others.skills
+                    : parsed.skills?.length ? parsed.skills
+                    : undefined;
                   setData((prev) => ({
                     ...prev,
                     personalInfo: { ...prev.personalInfo, ...(parsed.personalInfo || {}) },
@@ -1015,9 +1091,13 @@ export default function Editor() {
                     projectExperience: parsed.projectExperience?.length ? parsed.projectExperience : prev.projectExperience,
                     organizationExperience: parsed.organizationExperience?.length ? parsed.organizationExperience : prev.organizationExperience,
                     awards: parsed.awards?.length ? parsed.awards : prev.awards,
-                    skills: parsed.skills?.length ? parsed.skills : prev.skills,
+                    skills: importedSkills || prev.skills,
+                    others: {
+                      ...prev.others,
+                      skills: importedSkills || prev.others?.skills || [],
+                    },
                   }));
-                  setToast('AI 导入成功，请检查并完善内容');
+                  setToast({ message: 'AI 导入成功，请检查并完善内容', type: 'success' });
                   setShowAIImport(false);
                 }}
               />
@@ -1027,7 +1107,7 @@ export default function Editor() {
       )}
 
       {/* Toast */}
-      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

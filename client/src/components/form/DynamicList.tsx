@@ -38,8 +38,29 @@ export default function DynamicList<T>({
     onAdd();
   };
 
+  const allExpanded = items.length > 0 && items.every((_, i) => expandedIndices.has(i));
+
+  const toggleAll = () => {
+    if (allExpanded) {
+      setExpandedIndices(new Set());
+    } else {
+      setExpandedIndices(new Set(items.map((_, i) => i)));
+    }
+  };
+
   return (
     <div className="space-y-3">
+      {items.length > 1 && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={toggleAll}
+            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {allExpanded ? '折叠全部' : '展开全部'}
+          </button>
+        </div>
+      )}
       {items.map((item, index) => {
         const isExpanded = expandedIndices.has(index);
         return (

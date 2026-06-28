@@ -1,8 +1,11 @@
 import React from 'react';
-import { Resume } from '../types/resume';
+import { Resume, OtherInfo } from '../types/resume';
+
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
 
 const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills, others } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const skills = others?.skills || resume.skills || [];
 
   const sectionStyle: React.CSSProperties = {
     marginBottom: '16px',
@@ -34,64 +37,67 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         lineHeight: '1.5',
       }}
     >
-      {/* Header - 头像 + 居中姓名 */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        {personalInfo.photo && (
-          <div style={{ marginBottom: '12px' }}>
-            <img
-              src={personalInfo.photo}
-              alt="avatar"
-              style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                border: '2px solid #e5e7eb',
-              }}
-            />
+      {/* Header - 左侧姓名信息 + 右上角头像 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+        {/* 左侧/中间信息 */}
+        <div style={{ flex: 1 }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: '28px',
+              fontWeight: 800,
+              color: '#000000',
+              letterSpacing: '4px',
+            }}
+          >
+            {personalInfo.name || '姓名'}
+          </h1>
+          <div
+            style={{
+              marginTop: '8px',
+              fontSize: '13px',
+              color: '#4b5563',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              flexWrap: 'wrap',
+            }}
+          >
+            {personalInfo.phone && <span>{personalInfo.phone}</span>}
+            {personalInfo.phone && personalInfo.email && (
+              <span style={{ color: '#9ca3af' }}>·</span>
+            )}
+            {personalInfo.email && <span>{personalInfo.email}</span>}
+            {personalInfo.title && (
+              <>
+                <span style={{ color: '#9ca3af' }}>·</span>
+                <span>{personalInfo.title}</span>
+              </>
+            )}
+            {personalInfo.city && (
+              <>
+                <span style={{ color: '#9ca3af' }}>·</span>
+                <span>{personalInfo.city}</span>
+              </>
+            )}
           </div>
-        )}
-        <h1
-          style={{
-            margin: 0,
-            fontSize: '28px',
-            fontWeight: 800,
-            color: '#000000',
-            letterSpacing: '4px',
-          }}
-        >
-          {personalInfo.name || '姓名'}
-        </h1>
-        <div
-          style={{
-            marginTop: '8px',
-            fontSize: '13px',
-            color: '#4b5563',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '16px',
-            flexWrap: 'wrap',
-          }}
-        >
-          {personalInfo.phone && <span>{personalInfo.phone}</span>}
-          {personalInfo.phone && personalInfo.email && (
-            <span style={{ color: '#9ca3af' }}>·</span>
-          )}
-          {personalInfo.email && <span>{personalInfo.email}</span>}
-          {personalInfo.title && (
-            <>
-              <span style={{ color: '#9ca3af' }}>·</span>
-              <span>{personalInfo.title}</span>
-            </>
-          )}
-          {personalInfo.city && (
-            <>
-              <span style={{ color: '#9ca3af' }}>·</span>
-              <span>{personalInfo.city}</span>
-            </>
-          )}
         </div>
+        {/* 右上角头像 */}
+        {personalInfo.photo && (
+          <img
+            src={personalInfo.photo}
+            alt="avatar"
+            style={{
+              width: '88px',
+              height: '88px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              flexShrink: 0,
+              marginLeft: '20px',
+              border: '2px solid #e5e7eb',
+            }}
+          />
+        )}
       </div>
 
       {/* 个人总结 */}

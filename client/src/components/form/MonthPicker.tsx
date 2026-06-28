@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface MonthPickerProps {
   label: string;
@@ -19,11 +20,16 @@ export default function MonthPicker({ label, value, onChange, allowPresent = fal
   const selYear = parsed.length >= 2 ? parsed[0] : '';
   const selMonth = parsed.length >= 2 ? parsed[1] : '';
 
+  const popupRef = useRef<HTMLDivElement>(null);
+
   // Close on outside click
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (ref.current && !ref.current.contains(target) && popupRef.current && !popupRef.current.contains(target)) {
+        setOpen(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -52,8 +58,17 @@ export default function MonthPicker({ label, value, onChange, allowPresent = fal
       >
         {displayText}
       </button>
-      {open && (
-        <div className="absolute z-50 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-3 w-[240px] max-h-[320px] overflow-y-auto" style={{ left: 0, bottom: 'auto' }}>
+      {open && createPortal(
+        <div
+          ref={popupRef}
+          className="fixed z-[9999] bg-white border border-gray-200 rounded-xl shadow-lg p-3 w-[240px] max-h-[360px] overflow-y-auto"
+          style={(() => {
+            const btn = ref.current?.querySelector('button');
+            if (!btn) return { top: 0, left: 0 };
+            const rect = btn.getBoundingClientRect();
+            return { top: rect.bottom + 4, left: rect.left };
+          })()}
+        >
           {allowPresent && (
             <button
               type="button"
@@ -102,7 +117,8 @@ export default function MonthPicker({ label, value, onChange, allowPresent = fal
               })}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

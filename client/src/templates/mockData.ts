@@ -95,13 +95,13 @@ export const mockResume: Resume = {
     '2023 年度最佳技术创新奖',
     '2022 年 Q3 优秀员工',
   ],
-  skills: [
-    { category: '前端框架', items: 'React, Vue, Next.js, Umi' },
-    { category: '编程语言', items: 'TypeScript, JavaScript (ES6+), HTML5, CSS3' },
-    { category: '工程化工具', items: 'Webpack, Vite, Rollup, pnpm Monorepo' },
-    { category: '其他技能', items: 'Node.js, Docker, Nginx, Git' },
-  ],
   others: {
+    skills: [
+      { category: '前端框架', items: 'React, Vue, Next.js, Umi' },
+      { category: '编程语言', items: 'TypeScript, JavaScript (ES6+), HTML5, CSS3' },
+      { category: '工程化工具', items: 'Webpack, Vite, Rollup, pnpm Monorepo' },
+      { category: '其他技能', items: 'Node.js, Docker, Nginx, Git' },
+    ],
     certificates: ['CFA（二级）', 'PMP 项目管理'],
     languages: ['英语（CET-6）', '日语（N2）'],
     hobbies: ['篮球（校队队长）', '摄影'],

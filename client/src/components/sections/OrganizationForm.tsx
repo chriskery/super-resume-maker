@@ -4,6 +4,7 @@ import FormTextArea from '../form/FormTextArea';
 import DynamicList from '../form/DynamicList';
 import AIPolishButton from '../form/AIPolishButton';
 import MonthPicker from '../form/MonthPicker';
+import SummaryLine from '../form/SummaryLine';
 
 interface OrganizationFormProps {
   data: OrganizationExperience[];
@@ -36,13 +37,10 @@ export default function OrganizationForm({ data, onChange }: OrganizationFormPro
       }}
       addLabel="添加社团/组织经历"
       renderSummary={(item) => (
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium text-gray-700">{item.name || '未填写组织名'}</span>
-          <span className="text-gray-400">·</span>
-          <span className="text-gray-700">{item.role || '未填写职务'}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-700">{item.startDate || '开始时间'} - {item.endDate || '至今'}</span>
-        </div>
+        <SummaryLine
+          segments={[item.name || '未填写组织名', item.role || '未填写职务']}
+          dateRange={{ start: item.startDate, end: item.endDate }}
+        />
       )}
       renderItem={(item, _index, onUpdate) => (
         <div className="space-y-3">

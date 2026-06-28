@@ -1,8 +1,9 @@
 import React from 'react';
-import { Resume } from '../types/resume';
+import { Resume, OtherInfo } from '../types/resume';
 
 const ACCENT = '#ea580c';
 const ACCENT_LIGHT = '#fb923c';
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
 
 // ── 区段标题（左侧橙色圆点 + 文字 + 底部分隔线） ──
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
@@ -55,7 +56,8 @@ const ExpBlock: React.FC<{
 );
 
 const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills, others } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const skills = others?.skills || resume.skills || [];
 
   return (
     <div

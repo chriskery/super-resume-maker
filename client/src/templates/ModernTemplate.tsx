@@ -1,11 +1,13 @@
 import React from 'react';
-import { Resume } from '../types/resume';
+import { Resume, OtherInfo } from '../types/resume';
 
 const SIDEBAR_BG = '#1e293b';
 const ACCENT = '#3b82f6';
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
 
 const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills, others } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const skills = others?.skills || resume.skills || [];
 
   return (
     <div

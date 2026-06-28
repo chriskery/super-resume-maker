@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import type { Resume } from '../types/resume';
 
-const emptyOthers = { certificates: [], languages: [], hobbies: [], activities: [] };
+const emptyOthers = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
 
 const mockResumes: Resume[] = [
   {

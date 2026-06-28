@@ -5,6 +5,7 @@ import MinimalTemplate from './MinimalTemplate';
 import ModernTemplate from './ModernTemplate';
 import ElegantTemplate from './ElegantTemplate';
 import ClassicTemplate from './ClassicTemplate';
+import RedLineTemplate from './RedLineTemplate';
 
 export interface TemplateInfo {
   id: string;
@@ -43,6 +44,12 @@ export const templateRegistry: TemplateInfo[] = [
     name: '经典模板',
     description: '头像右上角，橙色标题，经典大方',
     component: ClassicTemplate,
+  },
+  {
+    id: 'redline',
+    name: '经典红',
+    description: '红色主题竖线装饰，紧凑高密度，无头像',
+    component: RedLineTemplate,
   },
 ];
 

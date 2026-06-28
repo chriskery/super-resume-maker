@@ -70,6 +70,9 @@ function MyResumes({
   refresh: () => void;
 }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchDeleting, setBatchDeleting] = useState(false);
 
   const handleDelete = async (id: string) => {
     if (!confirm('确定要删除这份简历吗？此操作不可撤销。')) return;
@@ -102,6 +105,36 @@ function MyResumes({
     }
   };
 
+  const toggleSelect = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
+  const selectAll = () => setSelectedIds(new Set(resumes.map(r => r.id)));
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const exitSelectionMode = () => {
+    setSelectionMode(false);
+    setSelectedIds(new Set());
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!confirm(`确定要删除选中的 ${selectedIds.size} 份简历吗？此操作不可撤销。`)) return;
+    setBatchDeleting(true);
+    try {
+      await Promise.all(Array.from(selectedIds).map(id => resumeApi.delete(id)));
+      exitSelectionMode();
+      refresh();
+    } catch {
+      alert('部分删除失败，请刷新后重试');
+    } finally {
+      setBatchDeleting(false);
+    }
+  };
+
   return (
     <>
       {loading && resumes.length === 0 && (
@@ -128,11 +161,68 @@ function MyResumes({
       )}
 
       {resumes.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {resumes.map((r) => (
-            <ResumeCard key={r.id} resume={r} onDelete={handleDelete} onDuplicate={handleDuplicate} onRename={handleRename} />
-          ))}
-        </div>
+        <>
+          {/* 顶部操作栏 */}
+          <div className={`flex items-center mb-4 ${selectionMode ? 'justify-start' : 'justify-end'}`}>
+            {selectionMode ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-600">已选择 {selectedIds.size} 项</span>
+                <button
+                  onClick={selectAll}
+                  className="text-sm text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded transition-colors"
+                >
+                  全选
+                </button>
+                <button
+                  onClick={clearSelection}
+                  className="text-sm text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded transition-colors"
+                >
+                  取消全选
+                </button>
+                <button
+                  onClick={handleBatchDelete}
+                  disabled={selectedIds.size === 0 || batchDeleting}
+                  className={`text-sm px-3 py-1.5 rounded transition-colors ${
+                    selectedIds.size === 0
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-red-500 text-white hover:bg-red-600'
+                  }`}
+                >
+                  {batchDeleting ? '删除中...' : '删除选中'}
+                </button>
+                <button
+                  onClick={exitSelectionMode}
+                  className="text-sm text-gray-600 hover:bg-gray-100 px-3 py-1.5 rounded transition-colors"
+                >
+                  退出管理
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setSelectionMode(true)}
+                className="text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-3 py-1.5 rounded transition-colors"
+              >
+                管理
+              </button>
+            )}
+          </div>
+
+          {/* 简历卡片网格 */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {resumes.map((r) => (
+              <ResumeCard
+                key={r.id}
+                resume={r}
+                onDelete={handleDelete}
+                onDuplicate={handleDuplicate}
+                onRename={handleRename}
+                selectionMode={selectionMode}
+                selected={selectedIds.has(r.id)}
+                onToggleSelect={toggleSelect}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {deletingId && (

@@ -16,9 +16,12 @@ interface ResumeCardProps {
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
   onRename: (id: string, newTitle: string) => void;
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
-export default function ResumeCard({ resume, onDelete, onDuplicate, onRename }: ResumeCardProps) {
+export default function ResumeCard({ resume, onDelete, onDuplicate, onRename, selectionMode, selected, onToggleSelect }: ResumeCardProps) {
   const navigate = useNavigate();
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(resume.title);
@@ -43,18 +46,52 @@ export default function ResumeCard({ resume, onDelete, onDuplicate, onRename }: 
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-200 flex flex-col">
+    <div className={`bg-white rounded-lg overflow-hidden transition-all duration-200 flex flex-col relative ${
+      selectionMode && selected ? 'border-2 border-blue-500 shadow-md' : 'border border-gray-200 hover:shadow-lg hover:border-blue-300'
+    }`}>
+      {/* 选择模式 checkbox */}
+      {selectionMode && (
+        <div
+          className="absolute top-2 left-2 z-10"
+          onClick={(e) => { e.stopPropagation(); onToggleSelect?.(resume.id); }}
+        >
+          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
+            selected ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300 hover:border-blue-400'
+          }`}>
+            {selected && (
+              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
       {/* 简历预览缩略图 */}
       <div
         className="w-full aspect-[3/4] overflow-hidden bg-gray-50 border-b border-gray-100 relative cursor-pointer group"
-        onClick={() => !isRenaming && navigate(`/editor/${resume.id}`)}
+        onClick={() => {
+          if (isRenaming) return;
+          if (selectionMode) { onToggleSelect?.(resume.id); return; }
+          navigate(`/editor/${resume.id}`);
+        }}
       >
         <div style={{ zoom: 0.22, pointerEvents: 'none', userSelect: 'none' }}>
           {(() => {
             const tpl = getTemplate(resume.templateId);
             if (!tpl) return null;
             const Comp = tpl.component;
-            return <Comp resume={resume} />;
+            const safeResume = {
+              ...resume,
+              personalInfo: resume.personalInfo ?? { name: '', phone: '', email: '', title: '' },
+              workExperience: resume.workExperience ?? [],
+              projectExperience: resume.projectExperience ?? [],
+              organizationExperience: resume.organizationExperience ?? [],
+              education: resume.education ?? [],
+              awards: resume.awards ?? [],
+              skills: resume.skills ?? [],
+              tags: resume.tags ?? [],
+            };
+            return <Comp resume={safeResume} />;
           })()}
         </div>
         {/* hover 遮罩 */}

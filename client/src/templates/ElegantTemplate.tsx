@@ -54,7 +54,8 @@ const ExpBlock: React.FC<{
 );
 
 const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [] } = resume;
+  const skills = resume.others?.skills || resume.skills || [];
 
   return (
     <div
@@ -89,19 +90,21 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z" fill="#ffffff" />
         </svg>
 
-        {/* 头像 */}
+        {/* 右上角头像 */}
         {personalInfo.photo && (
           <img
             src={personalInfo.photo}
             alt="avatar"
             style={{
+              position: 'absolute',
+              top: '24px',
+              right: '36px',
               width: '88px',
               height: '88px',
               borderRadius: '50%',
               objectFit: 'cover',
               border: '4px solid rgba(255,255,255,0.8)',
               boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              marginBottom: '12px',
             }}
           />
         )}

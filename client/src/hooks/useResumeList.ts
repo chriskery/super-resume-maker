@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Resume } from '../types/resume';
 import { resumeApi } from '../services/api';
+import { normalizeResume } from './useResume';
 
 export function useResumeList() {
   const [resumes, setResumes] = useState<Resume[]>([]);
@@ -12,7 +13,7 @@ export function useResumeList() {
     setError(null);
     try {
       const data = await resumeApi.list();
-      setResumes(data);
+      setResumes(data.map(normalizeResume));
     } catch (err: any) {
       setError(err?.response?.data?.error || err.message || '加载简历列表失败');
     } finally {
