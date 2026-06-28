@@ -55,6 +55,7 @@ router.post('/', async (req, res) => {
       organizationExperience: req.body.organizationExperience || [],
       awards: req.body.awards || [],
       skills: req.body.skills || [],
+      tags: req.body.tags || [],
       createdAt: now,
       updatedAt: now,
     };
@@ -85,6 +86,52 @@ router.put('/:id', async (req, res) => {
     }
     console.error('Error updating resume:', err);
     res.status(500).json({ error: 'Failed to update resume' });
+  }
+});
+
+// PATCH /api/resumes/:id - partial update (e.g. rename title)
+router.patch('/:id', async (req, res) => {
+  try {
+    const existing = await readResume(req.params.id);
+    const updated = {
+      ...existing,
+      ...req.body,
+      id: req.params.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+    await writeResume(req.params.id, updated);
+    res.json(updated);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    console.error('Error patching resume:', err);
+    res.status(500).json({ error: 'Failed to update resume' });
+  }
+});
+
+// POST /api/resumes/:id/duplicate - duplicate a resume
+router.post('/:id/duplicate', async (req, res) => {
+  try {
+    const existing = await readResume(req.params.id);
+    const newId = uuidv4();
+    const now = new Date().toISOString();
+    const duplicated = {
+      ...existing,
+      id: newId,
+      title: `${existing.title} - 副本`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await writeResume(newId, duplicated);
+    res.status(201).json(duplicated);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    console.error('Error duplicating resume:', err);
+    res.status(500).json({ error: 'Failed to duplicate resume' });
   }
 });
 

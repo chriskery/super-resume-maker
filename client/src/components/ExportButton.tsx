@@ -12,6 +12,20 @@ export default function ExportButton({ documentTitle, getPrintRef }: ExportButto
     pageStyle: `
       @page { size: A4; margin: 0; }
       body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      /* 避免末页空白：让内容自然结束，不强制撑满页面 */
+      body > div > div {
+        min-height: auto !important;
+        height: auto !important;
+      }
+      /* 避免区段被截断到下一页 */
+      h1, h2, h3, h4 {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      ul, ol, table {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
     `,
   });
 

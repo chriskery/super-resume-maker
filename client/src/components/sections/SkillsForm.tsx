@@ -1,6 +1,7 @@
 import { Skill } from '../../types/resume';
 import FormInput from '../form/FormInput';
 import FormTextArea from '../form/FormTextArea';
+import AIPolishButton from '../form/AIPolishButton';
 
 interface SkillsFormProps {
   data: Skill[];
@@ -41,6 +42,11 @@ export default function SkillsForm({ data, onChange }: SkillsFormProps) {
               onChange={(v) => updateItem(index, { ...skill, items: v })}
               placeholder="描述具体技能，如：JavaScript, TypeScript, React, Vue"
               rows={2}
+            />
+            <AIPolishButton
+              text={skill.items}
+              type="skill"
+              onAccept={(newText) => updateItem(index, { ...skill, items: newText })}
             />
           </div>
         </div>

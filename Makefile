@@ -9,4 +9,11 @@ sync:
 		--exclude 'client/dist' \
 		./ $(REMOTE_HOST):$(REMOTE_DIR)/
 
-.PHONY: sync
+start:
+	ssh $(REMOTE_HOST) "cd $(REMOTE_DIR) && npm install --prefix server && npm install --prefix client && npm run dev"
+
+test:
+	cd server && npx jest --forceExit
+	cd client && npx vitest run
+
+.PHONY: sync start test

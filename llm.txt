@@ -1,0 +1,123 @@
+# Super Resume Maker
+
+> 基于 React + Express 的 Web 端简历生成器，支持多模板切换、实时预览、PDF 导出、AI 润色和本地 JSON 文件存储。
+
+## 项目架构
+
+- **前端**: Vite 5 + React 18 + TypeScript + Tailwind CSS
+- **后端**: Express.js (Node.js)
+- **存储**: JSON 文件 (`./data/resumes/`)
+- **PDF导出**: react-to-print (浏览器打印引擎)
+- **AI润色**: OpenAI 兼容接口 (环境变量配置)
+
+## 目录结构
+
+```
+super-resume-maker/
+├── client/                     # 前端 React 应用
+│   ├── src/
+│   │   ├── pages/              # 页面组件
+│   │   │   ├── Home.tsx        # 首页 (模板库 + 我的简历 双Tab)
+│   │   │   └── Editor.tsx      # 编辑器 (左编辑/右预览)
+│   │   ├── templates/          # 简历模板
+│   │   │   ├── registry.ts    # 模板注册表
+│   │   │   ├── ProfessionalTemplate.tsx  # 专业中文模板
+│   │   │   ├── MinimalTemplate.tsx       # 简约模板
+│   │   │   └── ModernTemplate.tsx        # 现代双栏模板
+│   │   ├── components/         # 通用组件
+│   │   │   ├── form/           # 表单组件 (FormInput, PhotoUpload, DynamicList)
+│   │   │   ├── sections/       # Section 编辑表单
+│   │   │   └── ExportButton.tsx # PDF 导出按钮
+│   │   ├── hooks/              # 自定义 Hooks
+│   │   │   ├── useResume.ts    # 单份简历 CRUD
+│   │   │   └── useResumeList.ts # 简历列表
+│   │   ├── services/           # API 服务层
+│   │   │   └── api.ts          # Axios 封装 (resumeApi + aiApi)
+│   │   └── types/              # TypeScript 类型定义
+│   │       └── resume.ts       # Resume 接口
+│   ├── vite.config.ts          # Vite 配置 (proxy /api → localhost:3001)
+│   └── package.json
+├── server/                     # 后端 Express 应用
+│   ├── server.js               # 入口 (端口 3001, CORS, dotenv)
+│   ├── routes/
+│   │   ├── resumes.js          # CRUD: GET/POST/PUT/DELETE /api/resumes
+│   │   └── ai.js              # POST /api/ai/polish (AI 润色)
+│   ├── utils/
+│   │   └── fileStorage.js      # JSON 文件读写 (原子写入)
+│   └── __tests__/              # Jest 单元测试
+├── data/resumes/               # 简历 JSON 存储目录
+├── .env                        # 环境变量 (AI 配置)
+├── Makefile                    # 部署脚本 (sync, start, test)
+└── package.json                # 根配置 (concurrently 启动前后端)
+```
+
+## API 接口
+
+### 简历 CRUD
+- `GET /api/resumes` — 列出所有简历摘要
+- `GET /api/resumes/:id` — 获取单份简历完整数据
+- `POST /api/resumes` — 新建简历
+- `PUT /api/resumes/:id` — 更新简历
+- `DELETE /api/resumes/:id` — 删除简历
+
+### AI 润色
+- `POST /api/ai/polish` — 文本润色
+  - Body: `{ text: string, type: 'summary' | 'highlight' | 'skill' }`
+  - Response: `{ result: string }`
+
+## 数据模型
+
+```typescript
+interface Resume {
+  id: string;
+  title: string;
+  templateId: string;            // 'professional' | 'minimal' | 'modern'
+  personalInfo: PersonalInfo;    // name, phone, email, title, photo?
+  summary: string;
+  workExperience: WorkExperience[];
+  projectExperience: ProjectExperience[];
+  organizationExperience: OrganizationExperience[];
+  awards: string[];
+  skills: Skill[];               // { category, items }
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+## 环境变量
+
+```
+RESUME_AI_MODEL=qwen3.6-plus
+RESUME_AI_AK=<your-api-key>
+RESUME_AI_BASEURL=https://api.openai.com/v1
+```
+
+## 快速启动
+
+```bash
+npm install && npm run install:all
+npm run dev
+# 前端: http://localhost:5174
+# 后端: http://localhost:3001
+```
+
+## 部署命令
+
+```bash
+make sync      # rsync 同步到远程服务器
+make start     # 远程启动应用
+make test      # 运行前后端测试
+```
+
+## 模板系统
+
+模板通过 `registry.ts` 注册，新增模板只需：
+1. 创建模板组件 (接收 `{ resume: Resume }` prop)
+2. 在 registry 数组中添加一项
+
+## 关键技术决策
+
+- PDF 导出使用 react-to-print 而非 @react-pdf/renderer，避免维护两套模板代码
+- 存储使用本地 JSON 文件而非 localStorage，满足"运行目录存储"需求
+- Vite proxy 代理 API 请求，开发时前后端分离无跨域问题
+- 模板组件使用 inline style 确保打印时样式不丢失

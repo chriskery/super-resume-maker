@@ -3,6 +3,8 @@ import { Resume } from '../types/resume';
 import ProfessionalTemplate from './ProfessionalTemplate';
 import MinimalTemplate from './MinimalTemplate';
 import ModernTemplate from './ModernTemplate';
+import ElegantTemplate from './ElegantTemplate';
+import ClassicTemplate from './ClassicTemplate';
 
 export interface TemplateInfo {
   id: string;
@@ -29,6 +31,18 @@ export const templateRegistry: TemplateInfo[] = [
     name: '现代模板',
     description: '双栏布局，深色侧边栏，现代感设计',
     component: ModernTemplate,
+  },
+  {
+    id: 'elegant',
+    name: '优雅模板',
+    description: '居中头像配蓝色弧形背景，优雅大方',
+    component: ElegantTemplate,
+  },
+  {
+    id: 'classic',
+    name: '经典模板',
+    description: '头像右上角，橙色标题，经典大方',
+    component: ClassicTemplate,
   },
 ];
 

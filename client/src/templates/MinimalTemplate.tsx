@@ -2,7 +2,7 @@ import React from 'react';
 import { Resume } from '../types/resume';
 
 const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, workExperience, projectExperience, organizationExperience, awards, skills } = resume;
+  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills, others } = resume;
 
   const sectionStyle: React.CSSProperties = {
     marginBottom: '16px',
@@ -26,7 +26,7 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         minHeight: '297mm',
         margin: '0 auto',
         backgroundColor: '#ffffff',
-        padding: '32px 36px',
+        padding: '40px 40px',
         boxSizing: 'border-box',
         fontFamily: '"PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif',
         color: '#1f2937',
@@ -34,8 +34,23 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         lineHeight: '1.5',
       }}
     >
-      {/* Header - 居中姓名 */}
+      {/* Header - 头像 + 居中姓名 */}
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        {personalInfo.photo && (
+          <div style={{ marginBottom: '12px' }}>
+            <img
+              src={personalInfo.photo}
+              alt="avatar"
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid #e5e7eb',
+              }}
+            />
+          </div>
+        )}
         <h1
           style={{
             margin: 0,
@@ -70,6 +85,12 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               <span>{personalInfo.title}</span>
             </>
           )}
+          {personalInfo.city && (
+            <>
+              <span style={{ color: '#9ca3af' }}>·</span>
+              <span>{personalInfo.city}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -80,6 +101,36 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.7', textAlign: 'justify' }}>
             {summary}
           </p>
+        </div>
+      )}
+
+      {/* 教育经历 */}
+      {education && education.length > 0 && (
+        <div style={sectionStyle}>
+          <div style={titleStyle}>教育经历</div>
+          {education.map((edu) => (
+            <div key={edu.id} style={{ marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 700, fontSize: '13px' }}>{edu.school}</span>
+                  {edu.tags && edu.tags.map((tag, ti) => (
+                    <span key={ti} style={{ fontSize: '10px', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
+                  ))}
+                </div>
+                <span style={{ fontSize: '12px', color: '#6b7280' }}>{edu.startDate} - {edu.endDate}</span>
+              </div>
+              <div style={{ fontSize: '12.5px', color: '#4b5563', marginTop: '2px' }}>
+                {[edu.degree, edu.major].filter(Boolean).join(' · ')}
+              </div>
+              {edu.highlights && edu.highlights.length > 0 && (
+                <ul style={{ margin: '4px 0 0 0', paddingLeft: '16px', listStyleType: 'disc' }}>
+                  {edu.highlights.map((h, i) => (
+                    <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.6', marginBottom: '2px' }}>{h}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
@@ -176,7 +227,7 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
       {/* 技能 */}
       {skills && skills.length > 0 && (
         <div style={sectionStyle}>
-          <div style={titleStyle}>其他</div>
+          <div style={titleStyle}>技能</div>
           {skills.map((skill, i) => (
             <div key={i} style={{ marginBottom: '3px', fontSize: '12.5px', color: '#374151' }}>
               <span style={{ fontWeight: 600 }}>{skill.category}：</span>
@@ -184,6 +235,35 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             </div>
           ))}
         </div>
+      )}
+
+      {/* 其他信息 */}
+      {others && (
+        (() => {
+          const secs: { key: keyof typeof others; label: string }[] = [
+            { key: 'certificates', label: '证书/执照' },
+            { key: 'languages', label: '语言' },
+            { key: 'hobbies', label: '兴趣爱好' },
+            { key: 'activities', label: '活动' },
+          ];
+          const hasAny = secs.some(s => others[s.key] && others[s.key].length > 0);
+          if (!hasAny) return null;
+          return (
+            <div style={sectionStyle}>
+              <div style={titleStyle}>其他</div>
+              {secs.map(({ key, label }) => {
+                const items = others[key];
+                if (!items || items.length === 0) return null;
+                return (
+                  <div key={key} style={{ marginBottom: '4px', fontSize: '12.5px', color: '#374151' }}>
+                    <span style={{ fontWeight: 600 }}>{label}：</span>
+                    <span>{items.join('、')}</span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()
       )}
     </div>
   );

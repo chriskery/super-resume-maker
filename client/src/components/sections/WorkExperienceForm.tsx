@@ -2,6 +2,8 @@ import { WorkExperience } from '../../types/resume';
 import FormInput from '../form/FormInput';
 import FormTextArea from '../form/FormTextArea';
 import DynamicList from '../form/DynamicList';
+import AIPolishButton from '../form/AIPolishButton';
+import MonthPicker from '../form/MonthPicker';
 
 interface WorkExperienceFormProps {
   data: WorkExperience[];
@@ -26,7 +28,22 @@ export default function WorkExperienceForm({ data, onChange }: WorkExperienceFor
       onAdd={() => onChange([...data, emptyItem()])}
       onRemove={(i) => onChange(data.filter((_, idx) => idx !== i))}
       onUpdate={(i, item) => onChange(data.map((d, idx) => (idx === i ? item : d)))}
+      onMove={(from, to) => {
+        const arr = [...data];
+        const [moved] = arr.splice(from, 1);
+        arr.splice(to, 0, moved);
+        onChange(arr);
+      }}
       addLabel="添加工作经历"
+      renderSummary={(item) => (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-medium text-gray-700">{item.company || '未填写公司'}</span>
+          <span className="text-gray-400">·</span>
+          <span className="text-gray-700">{item.position || '未填写职位'}</span>
+          <span className="text-gray-400">|</span>
+          <span className="text-gray-700">{item.startDate || '开始时间'} - {item.endDate || '至今'}</span>
+        </div>
+      )}
       renderItem={(item, _index, onUpdate) => (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
@@ -38,8 +55,8 @@ export default function WorkExperienceForm({ data, onChange }: WorkExperienceFor
             <FormInput label="地点" value={item.location} onChange={(v) => onUpdate({ ...item, location: v })} placeholder="工作城市" />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <FormInput label="开始时间" value={item.startDate} onChange={(v) => onUpdate({ ...item, startDate: v })} placeholder="如 2022-06" />
-            <FormInput label="结束时间" value={item.endDate} onChange={(v) => onUpdate({ ...item, endDate: v })} placeholder="如 2024-12 或 至今" />
+            <MonthPicker label="开始时间" value={item.startDate} onChange={(v) => onUpdate({ ...item, startDate: v })} />
+            <MonthPicker label="结束时间" value={item.endDate} onChange={(v) => onUpdate({ ...item, endDate: v })} allowPresent />
           </div>
           <FormTextArea
             label="工作亮点（每行一条）"
@@ -47,6 +64,11 @@ export default function WorkExperienceForm({ data, onChange }: WorkExperienceFor
             onChange={(v) => onUpdate({ ...item, highlights: v.split('\n').filter(Boolean) })}
             placeholder="每行写一条工作亮点或成果"
             rows={4}
+          />
+          <AIPolishButton
+            text={item.highlights.join('\n')}
+            type="highlight"
+            onAccept={(newText) => onUpdate({ ...item, highlights: newText.split('\n').filter(Boolean) })}
           />
         </div>
       )}

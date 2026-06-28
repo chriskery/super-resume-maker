@@ -5,7 +5,7 @@ const SIDEBAR_BG = '#1e293b';
 const ACCENT = '#3b82f6';
 
 const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo, summary, workExperience, projectExperience, organizationExperience, awards, skills } = resume;
+  const { personalInfo, summary, education, workExperience, projectExperience, organizationExperience, awards, skills, others } = resume;
 
   return (
     <div
@@ -28,7 +28,7 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           width: '72mm',
           backgroundColor: SIDEBAR_BG,
           color: '#f1f5f9',
-          padding: '28px 16px',
+          padding: '36px 20px',
           boxSizing: 'border-box',
           flexShrink: 0,
         }}
@@ -104,6 +104,11 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               <span style={{ marginRight: '6px' }}>✉️</span>{personalInfo.email}
             </div>
           )}
+          {personalInfo.city && (
+            <div style={{ fontSize: '12px', marginBottom: '6px', color: '#cbd5e1' }}>
+              <span style={{ marginRight: '6px' }}>📍</span>{personalInfo.city}
+            </div>
+          )}
         </div>
 
         {/* 技能 */}
@@ -162,13 +167,55 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             </ul>
           </div>
         )}
+
+        {/* 其他信息 - 放在侧边栏 */}
+        {others && (
+          (() => {
+            const secs: { key: keyof typeof others; label: string }[] = [
+              { key: 'certificates', label: '证书' },
+              { key: 'languages', label: '语言' },
+              { key: 'hobbies', label: '爱好' },
+              { key: 'activities', label: '活动' },
+            ];
+            const hasAny = secs.some(s => others[s.key] && others[s.key].length > 0);
+            if (!hasAny) return null;
+            return (
+              <div style={{ marginTop: '24px' }}>
+                <div
+                  style={{
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    color: ACCENT,
+                    marginBottom: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    borderBottom: `1px solid rgba(255,255,255,0.15)`,
+                    paddingBottom: '4px',
+                  }}
+                >
+                  其他
+                </div>
+                {secs.map(({ key, label }) => {
+                  const items = others[key];
+                  if (!items || items.length === 0) return null;
+                  return (
+                    <div key={key} style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '11.5px', fontWeight: 600, color: '#e2e8f0' }}>{label}</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{items.join('、')}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()
+        )}
       </div>
 
       {/* ===== 右侧主内容 ===== */}
       <div
         style={{
           flex: 1,
-          padding: '28px 24px',
+          padding: '36px 28px',
           boxSizing: 'border-box',
         }}
       >
@@ -190,6 +237,47 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.7', textAlign: 'justify' }}>
               {summary}
             </p>
+          </div>
+        )}
+
+        {/* 教育经历 */}
+        {education && education.length > 0 && (
+          <div style={{ marginBottom: '18px' }}>
+            <div
+              style={{
+                fontSize: '14px',
+                fontWeight: 700,
+                color: ACCENT,
+                borderBottom: `2px solid ${ACCENT}`,
+                paddingBottom: '4px',
+                marginBottom: '10px',
+              }}
+            >
+              教育经历
+            </div>
+            {education.map((edu) => (
+              <div key={edu.id} style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <span style={{ fontWeight: 700, fontSize: '13px' }}>{edu.school}</span>
+                    {edu.tags && edu.tags.map((tag, ti) => (
+                      <span key={ti} style={{ fontSize: '10px', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: '12px', color: '#6b7280' }}>{edu.startDate} - {edu.endDate}</span>
+                </div>
+                <div style={{ fontSize: '12.5px', color: '#4b5563', marginTop: '2px' }}>
+                  {[edu.degree, edu.major].filter(Boolean).join(' · ')}
+                </div>
+                {edu.highlights && edu.highlights.length > 0 && (
+                  <ul style={{ margin: '4px 0 0 0', paddingLeft: '16px', listStyleType: 'disc' }}>
+                    {edu.highlights.map((h, i) => (
+                      <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.6', marginBottom: '2px' }}>{h}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
           </div>
         )}
 
