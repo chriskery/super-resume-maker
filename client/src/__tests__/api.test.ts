@@ -5,6 +5,7 @@ const mockAxiosInstance = {
   get: vi.fn(),
   post: vi.fn(),
   put: vi.fn(),
+  patch: vi.fn(),
   delete: vi.fn(),
 };
 
@@ -16,7 +17,7 @@ vi.mock('axios', () => ({
 }));
 
 // Import after mock so resumeApi uses the mock instance
-const { resumeApi } = await import('../services/api');
+const { resumeApi, aiApi } = await import('../services/api');
 
 describe('resumeApi', () => {
   beforeEach(() => {
@@ -24,6 +25,7 @@ describe('resumeApi', () => {
     mockAxiosInstance.get.mockClear();
     mockAxiosInstance.post.mockClear();
     mockAxiosInstance.put.mockClear();
+    mockAxiosInstance.patch.mockClear();
     mockAxiosInstance.delete.mockClear();
   });
 
@@ -69,11 +71,48 @@ describe('resumeApi', () => {
     expect(result).toEqual(mockData);
   });
 
+  it('patch(id, data) should call PATCH /resumes/:id and return data', async () => {
+    const input = { title: '部分更新' };
+    const mockData = { id: '1', title: '部分更新', templateId: 'professional' };
+    mockAxiosInstance.patch.mockResolvedValue({ data: mockData });
+
+    const result = await resumeApi.patch('1', input);
+
+    expect(mockAxiosInstance.patch).toHaveBeenCalledWith('/resumes/1', input);
+    expect(result).toEqual(mockData);
+  });
+
+  it('duplicate(id) should call POST /resumes/:id/duplicate and return data', async () => {
+    const mockData = { id: 'dup-1', title: '简历1 (副本)' };
+    mockAxiosInstance.post.mockResolvedValue({ data: mockData });
+
+    const result = await resumeApi.duplicate('1');
+
+    expect(mockAxiosInstance.post).toHaveBeenCalledWith('/resumes/1/duplicate');
+    expect(result).toEqual(mockData);
+  });
+
   it('delete(id) should call DELETE /resumes/:id', async () => {
     mockAxiosInstance.delete.mockResolvedValue({ data: { success: true } });
 
     await resumeApi.delete('1');
 
     expect(mockAxiosInstance.delete).toHaveBeenCalledWith('/resumes/1');
+  });
+});
+
+describe('aiApi', () => {
+  beforeEach(() => {
+    mockAxiosInstance.post.mockClear();
+  });
+
+  it('duplicate(id) should call POST /resumes/:id/duplicate and return data', async () => {
+    const mockData = { id: 'dup-1', title: '简历1 (副本)' };
+    mockAxiosInstance.post.mockResolvedValue({ data: mockData });
+
+    const result = await aiApi.duplicate('1');
+
+    expect(mockAxiosInstance.post).toHaveBeenCalledWith('/resumes/1/duplicate');
+    expect(result).toEqual(mockData);
   });
 });

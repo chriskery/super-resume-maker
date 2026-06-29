@@ -10,7 +10,7 @@ interface SectionTitleProps {
 const SectionTitle: React.FC<SectionTitleProps> = ({
   title,
   icon,
-  color = '#2563eb',
+  color = '#5281F5',
   style,
 }) => {
   return (
@@ -19,9 +19,9 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        marginBottom: '10px',
-        paddingBottom: '6px',
-        borderBottom: `2px solid ${color}`,
+        marginBottom: '8px',
+        paddingBottom: '4px',
+        borderBottom: `1.5px solid ${color}`,
         ...style,
       }}
     >

@@ -13,6 +13,7 @@ export const mockResume: Resume = {
     email: 'zhangsan@example.com',
     title: '高级前端工程师',
     city: '杭州',
+    campusActivities: 'XX公众号（运营）、技术社区志愿者',
   },
   summary:
     '5年前端开发经验，精通 React 生态与 TypeScript，具备大型项目架构设计与团队管理能力。主导过多个核心业务系统的前端架构升级，擅长性能优化与工程化实践。',
@@ -92,8 +93,24 @@ export const mockResume: Resume = {
     },
   ],
   awards: [
-    '2023 年度最佳技术创新奖',
-    '2022 年 Q3 优秀员工',
+    {
+      id: 'a1',
+      title: '2023 年度最佳技术创新奖',
+      date: '2024-01',
+      description: '表彰在企业级低代码搭建平台项目中主导前端架构升级与组件库建设的突出贡献。',
+    },
+    {
+      id: 'a2',
+      title: '2022 年 Q3 优秀员工',
+      date: '2022-10',
+      description: '',
+    },
+    {
+      id: 'a3',
+      title: '一种在 Kubernetes 内提交 Slurm 物理机作业的方法',
+      date: '2023-09',
+      description: 'HPC 集群通常具有特定的硬件和网络架构，需要精确的资源调度和管理，而 Kubernetes 的默认调度器并不适用 HPC 场景。为了解决这些问题，本专利通过使用 VirtualKubelet、Kubernetes Operator 等技术提出了一种在 Kubernetes 集群内提交并监控 HPC（以 Slurm 为例）物理机作业的方法，让 Slurm 的算力资源通过桥接的方式在 Kubernetes 里能使用起来。',
+    },
   ],
   others: {
     skills: [
@@ -105,7 +122,6 @@ export const mockResume: Resume = {
     certificates: ['CFA（二级）', 'PMP 项目管理'],
     languages: ['英语（CET-6）', '日语（N2）'],
     hobbies: ['篮球（校队队长）', '摄影'],
-    activities: ['XX公众号（运营）', '技术社区志愿者'],
   },
   tags: ['前端', 'React', 'TypeScript'],
   createdAt: '2024-01-01T00:00:00.000Z',

@@ -1,6 +1,14 @@
 {
-  "name": "super-resume-maker",
-  "private": true,
+  "name": "@chriskery/super-resume-maker",
+  "version": "1.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chriskery/super-resume-maker.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && node server.js",

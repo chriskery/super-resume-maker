@@ -1,12 +1,12 @@
 import React from 'react';
 import { Resume } from '../types/resume';
 
-const ACCENT = '#2563eb';
-const GRADIENT_FROM = '#60a5fa';
-const GRADIENT_TO = '#3b82f6';
+const DEFAULT_ACCENT = '#5281F5';
+const DEFAULT_GRADIENT_FROM = '#60a5fa';
+const DEFAULT_GRADIENT_TO = '#3b82f6';
 
 // ── 居中区段标题（带左右装饰线） ──
-const CenterSectionTitle: React.FC<{ title: string }> = ({ title }) => (
+const CenterSectionTitle: React.FC<{ title: string; accent?: string }> = ({ title, accent = DEFAULT_ACCENT }) => (
   <div
     style={{
       display: 'flex',
@@ -17,7 +17,7 @@ const CenterSectionTitle: React.FC<{ title: string }> = ({ title }) => (
     }}
   >
     <div style={{ flex: 1, maxWidth: '60px', height: '1px', backgroundColor: '#cbd5e1' }} />
-    <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT, letterSpacing: '2px', whiteSpace: 'nowrap' }}>
+    <span style={{ fontSize: '14px', fontWeight: 700, color: accent, letterSpacing: '2px', whiteSpace: 'nowrap' }}>
       {title}
     </span>
     <div style={{ flex: 1, maxWidth: '60px', height: '1px', backgroundColor: '#cbd5e1' }} />
@@ -31,10 +31,11 @@ const ExpBlock: React.FC<{
   subtitle: string;
   location: string;
   highlights: string[];
-}> = ({ title, dateRange, subtitle, location, highlights }) => (
+  accent?: string;
+}> = ({ title, dateRange, subtitle, location, highlights, accent = '#111827' }) => (
   <div style={{ marginBottom: '12px' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-      <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{title}</span>
+      <span style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{title}</span>
       <span style={{ fontSize: '12px', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>{dateRange}</span>
     </div>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '2px' }}>
@@ -54,20 +55,26 @@ const ExpBlock: React.FC<{
 );
 
 const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [] } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], themeColor } = resume;
   const skills = resume.others?.skills || resume.skills || [];
+  const ACCENT = themeColor || DEFAULT_ACCENT;
+  const GRADIENT_FROM = themeColor || DEFAULT_GRADIENT_FROM;
+  const GRADIENT_TO = themeColor || DEFAULT_GRADIENT_TO;
+  const headerAlign = resume.headerAlignment || 'center';
 
   return (
     <div
       style={{
-        width: '210mm',
-        minHeight: '297mm',
+        width: '794px',
+        minHeight: '1123px',
+        maxHeight: '1123px',
+        overflow: 'hidden',
         margin: '0 auto',
         backgroundColor: '#ffffff',
         boxSizing: 'border-box',
-        fontFamily: '"PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif',
+        fontFamily: 'SimSun, "宋体", serif',
         color: '#1f2937',
-        fontSize: '13px',
+        fontSize: '12px',
         lineHeight: '1.5',
       }}
     >
@@ -77,7 +84,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           position: 'relative',
           background: `linear-gradient(135deg, ${GRADIENT_FROM}, ${GRADIENT_TO})`,
           padding: '40px 36px 48px',
-          textAlign: 'center',
+          textAlign: headerAlign,
           overflow: 'visible',
         }}
       >
@@ -138,6 +145,8 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           {personalInfo.phone && <span>{personalInfo.phone}</span>}
           {personalInfo.phone && personalInfo.email && <span style={{ opacity: 0.5 }}>|</span>}
           {personalInfo.email && <span>{personalInfo.email}</span>}
+          {(personalInfo.phone || personalInfo.email) && personalInfo.campusActivities && <span style={{ opacity: 0.5 }}>|</span>}
+          {personalInfo.campusActivities && <span>{personalInfo.campusActivities}</span>}
         </div>
 
         {/* 职位 */}
@@ -153,7 +162,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 个人总结 */}
         {summary && (
           <div style={{ marginBottom: '20px' }}>
-            <CenterSectionTitle title="个人总结" />
+            <CenterSectionTitle title="个人总结" accent={ACCENT} />
             <p
               style={{
                 margin: 0,
@@ -171,14 +180,14 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 教育经历 */}
         {education && education.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <CenterSectionTitle title="教育经历" />
+            <CenterSectionTitle title="教育经历" accent={ACCENT} />
             {education.map((edu) => (
               <div key={edu.id} style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{edu.school}</span>
                     {edu.tags && edu.tags.map((tag, ti) => (
-                      <span key={ti} style={{ fontSize: '10px', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
+                      <span key={ti} style={{ fontSize: '10px', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
                     ))}
                   </div>
                   <span style={{ fontSize: '12px', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>{edu.startDate} - {edu.endDate}</span>
@@ -201,7 +210,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 工作经历 */}
         {workExperience && workExperience.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <CenterSectionTitle title="工作经历" />
+            <CenterSectionTitle title="工作经历" accent={ACCENT} />
             {workExperience.map((exp) => (
               <ExpBlock
                 key={exp.id}
@@ -210,6 +219,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
                 subtitle={[exp.position, exp.department].filter(Boolean).join(' · ')}
                 location={exp.location}
                 highlights={exp.highlights}
+                accent="#5281F5"
               />
             ))}
           </div>
@@ -218,7 +228,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 项目经历 */}
         {projectExperience && projectExperience.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <CenterSectionTitle title="项目经历" />
+            <CenterSectionTitle title="项目经历" accent={ACCENT} />
             {projectExperience.map((exp) => (
               <ExpBlock
                 key={exp.id}
@@ -227,6 +237,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
                 subtitle={exp.role}
                 location={exp.location}
                 highlights={exp.highlights}
+                accent="#5281F5"
               />
             ))}
           </div>
@@ -235,7 +246,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 社团和组织经历 */}
         {organizationExperience && organizationExperience.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <CenterSectionTitle title="社团和组织经历" />
+            <CenterSectionTitle title="社团和组织经历" accent={ACCENT} />
             {organizationExperience.map((exp) => (
               <ExpBlock
                 key={exp.id}
@@ -244,6 +255,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
                 subtitle={[exp.role, exp.department].filter(Boolean).join(' · ')}
                 location={exp.location}
                 highlights={exp.highlights}
+                accent="#5281F5"
               />
             ))}
           </div>
@@ -252,11 +264,19 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 荣誉奖项 */}
         {awards && awards.length > 0 && (
           <div style={{ marginBottom: '20px' }}>
-            <CenterSectionTitle title="荣誉奖项" />
+            <CenterSectionTitle title="荣誉奖项" accent={ACCENT} />
             <ul style={{ margin: 0, paddingLeft: '16px', listStyleType: 'disc' }}>
               {awards.map((award, i) => (
-                <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.7', marginBottom: '2px' }}>
-                  {award}
+                <li key={award.id || i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.7', marginBottom: '6px' }}>
+                  <span style={{ fontWeight: 600 }}>
+                    {award.title || `奖项 ${i + 1}`}
+                    {award.date && <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: '8px' }}>{award.date}</span>}
+                  </span>
+                  {award.description && (
+                    <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.6 }}>
+                      {award.description}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -266,7 +286,7 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
         {/* 技能 & 其他 — 双栏 */}
         {skills && skills.length > 0 && (
           <div style={{ marginBottom: '16px' }}>
-            <CenterSectionTitle title="其他" />
+            <CenterSectionTitle title="其他" accent={ACCENT} />
             <div
               style={{
                 display: 'grid',
@@ -291,4 +311,4 @@ const ElegantTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   );
 };
 
-export default ElegantTemplate;
+export default React.memo(ElegantTemplate);

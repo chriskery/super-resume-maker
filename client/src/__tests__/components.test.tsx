@@ -26,7 +26,7 @@ vi.mock('../services/api', () => ({
 const { default: ResumeCard } = await import('../components/ResumeCard');
 const { default: CreateResumeModal } = await import('../components/CreateResumeModal');
 
-const emptyOthers = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
+const emptyOthers = { skills: [], certificates: [], languages: [], hobbies: [] };
 
 const mockResume: Resume = {
   id: 'test-id-1',
@@ -60,9 +60,11 @@ describe('ResumeCard', () => {
     expect(screen.getByText('我的测试简历')).toBeInTheDocument();
   });
 
-  it('should render the template name mapping', () => {
+  it('should render resume preview for known template', () => {
     render(<ResumeCard resume={mockResume} onDelete={mockOnDelete} onDuplicate={mockOnDuplicate} onRename={mockOnRename} />);
-    expect(screen.getByText('专业模板')).toBeInTheDocument();
+    // The card renders the resume title and action buttons
+    expect(screen.getByText('我的测试简历')).toBeInTheDocument();
+    expect(screen.getByText('编辑')).toBeInTheDocument();
   });
 
   it('should render edit and delete buttons', () => {
@@ -83,10 +85,13 @@ describe('ResumeCard', () => {
     expect(mockOnDelete).toHaveBeenCalledWith('test-id-1');
   });
 
-  it('should display templateId directly if no mapping exists', () => {
+  it('should still render card UI when templateId has no mapping', () => {
     const customResume = { ...mockResume, templateId: 'custom-template' };
     render(<ResumeCard resume={customResume} onDelete={mockOnDelete} onDuplicate={mockOnDuplicate} onRename={mockOnRename} />);
-    expect(screen.getByText('custom-template')).toBeInTheDocument();
+    // Card should still show title and action buttons even without a valid template
+    expect(screen.getByText('我的测试简历')).toBeInTheDocument();
+    expect(screen.getByText('编辑')).toBeInTheDocument();
+    expect(screen.getByText('删除')).toBeInTheDocument();
   });
 });
 

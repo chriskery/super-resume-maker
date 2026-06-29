@@ -1,13 +1,13 @@
 import React from 'react';
 import { Resume, OtherInfo } from '../types/resume';
 
-const ACCENT = '#ea580c';
-const ACCENT_LIGHT = '#fb923c';
-const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
+const DEFAULT_ACCENT = '#ea580c';
+const DEFAULT_ACCENT_LIGHT = '#fb923c';
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [] };
 
-// ── 区段标题（左侧橙色圆点 + 文字 + 底部分隔线） ──
-const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
-  <div style={{ marginBottom: '10px', borderBottom: '1.5px solid #e5e7eb', paddingBottom: '6px' }}>
+// ── 区段标题（左侧圆点 + 文字 + 底部分隔线） ──
+const SectionTitle: React.FC<{ title: string; accent?: string }> = ({ title, accent = DEFAULT_ACCENT }) => (
+  <div style={{ marginBottom: '8px', borderBottom: '1.5px solid #e5e7eb', paddingBottom: '4px' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
       <span
         style={{
@@ -15,11 +15,11 @@ const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
           width: '8px',
           height: '8px',
           borderRadius: '50%',
-          backgroundColor: ACCENT,
+          backgroundColor: accent,
           flexShrink: 0,
         }}
       />
-      <span style={{ fontSize: '14px', fontWeight: 700, color: ACCENT, letterSpacing: '1px' }}>{title}</span>
+      <span style={{ fontSize: '14px', fontWeight: 700, color: accent, letterSpacing: '1px' }}>{title}</span>
     </div>
   </div>
 );
@@ -31,10 +31,11 @@ const ExpBlock: React.FC<{
   subtitle: string;
   location: string;
   highlights: string[];
-}> = ({ title, dateRange, subtitle, location, highlights }) => (
-  <div style={{ marginBottom: '12px' }}>
+  accent?: string;
+}> = ({ title, dateRange, subtitle, location, highlights, accent = '#111827' }) => (
+  <div style={{ marginBottom: '8px' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-      <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{title}</span>
+      <span style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{title}</span>
       <span style={{ fontSize: '12px', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>{dateRange}</span>
     </div>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '2px' }}>
@@ -44,9 +45,9 @@ const ExpBlock: React.FC<{
       )}
     </div>
     {highlights && highlights.length > 0 && (
-      <ul style={{ margin: '4px 0 0 0', paddingLeft: '16px', listStyleType: 'disc' }}>
+      <ul style={{ margin: '3px 0 0 0', paddingLeft: '16px', listStyleType: 'disc' }}>
         {highlights.map((h, i) => (
-          <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.6', marginBottom: '2px' }}>
+          <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.5', marginBottom: '1px' }}>
             {h}
           </li>
         ))}
@@ -56,21 +57,26 @@ const ExpBlock: React.FC<{
 );
 
 const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS, themeColor } = resume;
   const skills = others?.skills || resume.skills || [];
+  const ACCENT = themeColor || DEFAULT_ACCENT;
+  const ACCENT_LIGHT = themeColor || DEFAULT_ACCENT_LIGHT;
+  const headerAlign = resume.headerAlignment || 'center';
 
   return (
     <div
       style={{
-        width: '210mm',
-        minHeight: '297mm',
+        width: '794px',
+        minHeight: '1123px',
+        maxHeight: '1123px',
+        overflow: 'hidden',
         margin: '0 auto',
         backgroundColor: '#ffffff',
-        padding: '40px 36px',
+        padding: '28px 32px',
         boxSizing: 'border-box',
-        fontFamily: '"PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif',
+        fontFamily: 'SimSun, "宋体", serif',
         color: '#1f2937',
-        fontSize: '13px',
+        fontSize: '12px',
         lineHeight: '1.5',
       }}
     >
@@ -80,13 +86,11 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          marginBottom: '20px',
-          paddingBottom: '16px',
-          borderBottom: `2px solid ${ACCENT_LIGHT}`,
+          marginBottom: '10px',
         }}
       >
         {/* 左侧 */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, textAlign: headerAlign }}>
           <h1
             style={{
               margin: 0,
@@ -123,6 +127,11 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               意向城市：{personalInfo.city}
             </div>
           )}
+          {personalInfo.campusActivities && (
+            <div style={{ marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+              校园活动：{personalInfo.campusActivities}
+            </div>
+          )}
         </div>
 
         {/* 右上角方形圆角头像 */}
@@ -145,9 +154,9 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 个人总结 ===== */}
       {summary && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="个人总结" />
-          <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.7', textAlign: 'justify' }}>
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="个人总结" accent={ACCENT} />
+          <p style={{ margin: 0, fontSize: '12.5px', color: '#374151', lineHeight: '1.55', textAlign: 'justify' }}>
             {summary}
           </p>
         </div>
@@ -155,15 +164,15 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 教育经历 ===== */}
       {education && education.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="教育经历" />
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="教育经历" accent={ACCENT} />
           {education.map((edu) => (
-            <div key={edu.id} style={{ marginBottom: '12px' }}>
+            <div key={edu.id} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{edu.school}</span>
                   {edu.tags && edu.tags.map((tag, ti) => (
-                    <span key={ti} style={{ fontSize: '10px', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
+                    <span key={ti} style={{ fontSize: '10px', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
                   ))}
                 </div>
                 <span style={{ fontSize: '12px', color: '#6b7280', flexShrink: 0, marginLeft: '12px' }}>{edu.startDate} - {edu.endDate}</span>
@@ -172,9 +181,9 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
                 {[edu.major, edu.degree].filter(Boolean).join(' · ')}
               </div>
               {edu.highlights && edu.highlights.length > 0 && (
-                <ul style={{ margin: '4px 0 0 0', paddingLeft: '16px', listStyleType: 'disc' }}>
+                <ul style={{ margin: '3px 0 0 0', paddingLeft: '16px', listStyleType: 'disc' }}>
                   {edu.highlights.map((h, i) => (
-                    <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.6', marginBottom: '2px' }}>{h}</li>
+                    <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.5', marginBottom: '1px' }}>{h}</li>
                   ))}
                 </ul>
               )}
@@ -185,8 +194,8 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 工作经历 ===== */}
       {workExperience && workExperience.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="工作经历" />
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="工作经历" accent={ACCENT} />
           {workExperience.map((exp) => (
             <ExpBlock
               key={exp.id}
@@ -195,6 +204,7 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               subtitle={[exp.position, exp.department].filter(Boolean).join(' · ')}
               location={exp.location}
               highlights={exp.highlights}
+              accent="#5281F5"
             />
           ))}
         </div>
@@ -202,8 +212,8 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 项目经历 ===== */}
       {projectExperience && projectExperience.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="项目经历" />
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="项目经历" accent={ACCENT} />
           {projectExperience.map((exp) => (
             <ExpBlock
               key={exp.id}
@@ -212,6 +222,7 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               subtitle={exp.role}
               location={exp.location}
               highlights={exp.highlights}
+              accent="#5281F5"
             />
           ))}
         </div>
@@ -219,8 +230,8 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 社团和组织经历 ===== */}
       {organizationExperience && organizationExperience.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="社团和组织经历" />
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="社团和组织经历" accent={ACCENT} />
           {organizationExperience.map((exp) => (
             <ExpBlock
               key={exp.id}
@@ -229,6 +240,7 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               subtitle={[exp.role, exp.department].filter(Boolean).join(' · ')}
               location={exp.location}
               highlights={exp.highlights}
+              accent="#5281F5"
             />
           ))}
         </div>
@@ -236,12 +248,20 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 荣誉奖项 ===== */}
       {awards && awards.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="荣誉奖项" />
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="荣誉奖项" accent={ACCENT} />
           <ul style={{ margin: 0, paddingLeft: '16px', listStyleType: 'disc' }}>
             {awards.map((award, i) => (
-              <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.7', marginBottom: '2px' }}>
-                {award}
+              <li key={award.id || i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.55', marginBottom: '4px' }}>
+                <span style={{ fontWeight: 600 }}>
+                  {award.title || `奖项 ${i + 1}`}
+                  {award.date && <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: '8px' }}>{award.date}</span>}
+                </span>
+                {award.description && (
+                  <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.6 }}>
+                    {award.description}
+                  </div>
+                )}
               </li>
             ))}
           </ul>
@@ -250,9 +270,9 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
 
       {/* ===== 其他（技能） ===== */}
       {skills && skills.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <SectionTitle title="技能" />
-          <div style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.7' }}>
+        <div style={{ marginBottom: '12px' }}>
+          <SectionTitle title="技能" accent={ACCENT} />
+          <div style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.55' }}>
             {skills.map((skill, i) => (
               <div key={i} style={{ marginBottom: '3px' }}>
                 <span style={{ fontWeight: 600, color: '#1f2937' }}>{skill.category}：</span>
@@ -270,18 +290,17 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             { key: 'certificates', label: '证书/执照' },
             { key: 'languages', label: '语言' },
             { key: 'hobbies', label: '兴趣爱好' },
-            { key: 'activities', label: '活动' },
           ];
           const hasAny = sections.some(s => others[s.key] && others[s.key].length > 0);
           if (!hasAny) return null;
           return (
-            <div style={{ marginBottom: '16px' }}>
-              <SectionTitle title="其他" />
+            <div style={{ marginBottom: '12px' }}>
+              <SectionTitle title="其他" accent={ACCENT} />
               {sections.map(({ key, label }) => {
                 const items = others[key];
                 if (!items || items.length === 0) return null;
                 return (
-                  <div key={key} style={{ marginBottom: '6px', fontSize: '12.5px', color: '#374151', lineHeight: '1.7' }}>
+                  <div key={key} style={{ marginBottom: '4px', fontSize: '12.5px', color: '#374151', lineHeight: '1.55' }}>
                     <span style={{ fontWeight: 600, color: '#1f2937' }}>{label}：</span>
                     <span>{items.join('、')}</span>
                   </div>
@@ -295,4 +314,4 @@ const ClassicTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   );
 };
 
-export default ClassicTemplate;
+export default React.memo(ClassicTemplate);

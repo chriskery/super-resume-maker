@@ -15,10 +15,10 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
   subtitle,
   location,
   highlights,
-  color = '#2563eb',
+  color = '#111827'
 }) => {
   return (
-    <div style={{ marginBottom: '12px' }}>
+    <div style={{ marginBottom: '8px' }}>
       {/* 第一行：标题 + 时间 */}
       <div
         style={{
@@ -31,7 +31,7 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
           style={{
             fontWeight: 700,
             fontSize: '13.5px',
-            color: '#1f2937',
+            color,
           }}
         >
           {title}
@@ -80,7 +80,7 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
       {highlights && highlights.length > 0 && (
         <ul
           style={{
-            margin: '5px 0 0 0',
+            margin: '3px 0 0 0',
             paddingLeft: '16px',
             listStyleType: 'disc',
           }}
@@ -91,8 +91,8 @@ const ExperienceItem: React.FC<ExperienceItemProps> = ({
               style={{
                 fontSize: '12.5px',
                 color: '#374151',
-                lineHeight: '1.6',
-                marginBottom: '2px',
+                lineHeight: '1.5',
+                marginBottom: '1px',
               }}
             >
               {h}

@@ -3,6 +3,7 @@ import FormInput from '../form/FormInput';
 import FormTextArea from '../form/FormTextArea';
 import DynamicList from '../form/DynamicList';
 import AIPolishButton from '../form/AIPolishButton';
+import AIGenerateHighlights from '../form/AIGenerateHighlights';
 import MonthPicker from '../form/MonthPicker';
 import SummaryLine from '../form/SummaryLine';
 
@@ -62,6 +63,12 @@ export default function WorkExperienceForm({ data, onChange }: WorkExperienceFor
             onChange={(v) => onUpdate({ ...item, highlights: v.split('\n').filter(Boolean) })}
             placeholder="每行写一条工作亮点或成果"
             rows={4}
+          />
+          <AIGenerateHighlights
+            position={item.position}
+            company={item.company}
+            type="work"
+            onInsert={(picked) => onUpdate({ ...item, highlights: [...item.highlights, ...picked] })}
           />
           <AIPolishButton
             text={item.highlights.join('\n')}

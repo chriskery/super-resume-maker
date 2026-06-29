@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { streamFetch } from '../../services/api';
 
 interface AIPolishButtonProps {
   text: string;
@@ -25,76 +26,25 @@ export default function AIPolishButton({ text, type, onAccept }: AIPolishButtonP
     abortRef.current = abort;
 
     try {
-      const resp = await fetch('/api/ai/polish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, type }),
-        signal: abort.signal,
-      });
-
-      if (!resp.ok || !resp.body) {
-        // Try to parse JSON error from non-streaming response
-        let msg = `请求失败（${resp.status}）`;
-        try {
-          const j = await resp.json();
-          if (j.error) msg = j.error;
-        } catch { /* ignore */ }
-        throw new Error(msg);
-      }
-
-      // Open dialog immediately to show streaming content
+      // 先打开弹窗以便实时展示流式内容
       setShowDialog(true);
-      setLoading(false);
       setStreaming(true);
+      setLoading(false);
 
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let accumulated = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith('data: ')) continue;
-          const payload = trimmed.slice(6);
-
-          if (payload === '[DONE]') {
-            setStreaming(false);
-            return;
-          }
-
-          try {
-            const json = JSON.parse(payload);
-            if (json.error) {
-              setError(json.error);
-              setStreaming(false);
-              return;
-            }
-            if (json.content) {
-              accumulated += json.content;
-              setPolished(accumulated);
-            }
-          } catch {
-            // skip malformed lines
-          }
-        }
-      }
-
-      setStreaming(false);
+      await streamFetch(
+        '/api/ai/polish',
+        { text, type },
+        (accumulated) => setPolished(accumulated),
+        abort.signal,
+      );
     } catch (err: unknown) {
       if ((err as { name?: string })?.name === 'AbortError') {
-        // User cancelled — silently stop
+        // 用户取消，静默处理
       } else {
         const msg = (err as { message?: string })?.message || 'AI 润色失败，请稍后重试';
         setError(msg);
       }
+    } finally {
       setLoading(false);
       setStreaming(false);
     }

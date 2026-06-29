@@ -4,6 +4,7 @@ export interface PersonalInfo {
   email: string;
   title: string;
   city?: string;
+  campusActivities?: string;
   photo?: string;
 }
 
@@ -60,20 +61,28 @@ export interface OtherInfo {
   certificates: string[];  // 证书/执照
   languages: string[];     // 语言
   hobbies: string[];       // 兴趣爱好
-  activities: string[];    // 活动
+}
+
+export interface Award {
+  id: string;
+  title: string;            // 奖项/专利名称
+  date: string;             // 获得时间 YYYY-MM
+  description?: string;     // 详细描述（可选）
 }
 
 export interface Resume {
   id: string;
   title: string;
   templateId: string;
+  themeColor?: string;
+  headerAlignment?: 'left' | 'center' | 'right';
   personalInfo: PersonalInfo;
   summary: string;
   education: Education[];
   workExperience: WorkExperience[];
   projectExperience: ProjectExperience[];
   organizationExperience: OrganizationExperience[];
-  awards: string[];
+  awards: Award[];
   skills?: Skill[];
   others: OtherInfo;
   tags: string[];

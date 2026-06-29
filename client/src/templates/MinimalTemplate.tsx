@@ -1,11 +1,14 @@
 import React from 'react';
 import { Resume, OtherInfo } from '../types/resume';
 
-const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [] };
+const DEFAULT_ACCENT = '#374151';
 
 const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS, themeColor } = resume;
   const skills = others?.skills || resume.skills || [];
+  const accent = themeColor || DEFAULT_ACCENT;
+  const headerAlign = resume.headerAlignment || 'center';
 
   const sectionStyle: React.CSSProperties = {
     marginBottom: '16px',
@@ -14,8 +17,8 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   const titleStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: 700,
-    color: '#111827',
-    borderBottom: '1.5px solid #374151',
+    color: accent,
+    borderBottom: `1.5px solid ${accent}`,
     paddingBottom: '4px',
     marginBottom: '10px',
     textTransform: 'uppercase',
@@ -25,22 +28,24 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   return (
     <div
       style={{
-        width: '210mm',
-        minHeight: '297mm',
+        width: '794px',
+        minHeight: '1123px',
+        maxHeight: '1123px',
+        overflow: 'hidden',
         margin: '0 auto',
         backgroundColor: '#ffffff',
         padding: '40px 40px',
         boxSizing: 'border-box',
-        fontFamily: '"PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif',
+        fontFamily: 'SimSun, "宋体", serif',
         color: '#1f2937',
-        fontSize: '13px',
+        fontSize: '12px',
         lineHeight: '1.5',
       }}
     >
       {/* Header - 左侧姓名信息 + 右上角头像 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
         {/* 左侧/中间信息 */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, textAlign: headerAlign }}>
           <h1
             style={{
               margin: 0,
@@ -78,6 +83,12 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               <>
                 <span style={{ color: '#9ca3af' }}>·</span>
                 <span>{personalInfo.city}</span>
+              </>
+            )}
+            {personalInfo.campusActivities && (
+              <>
+                <span style={{ color: '#9ca3af' }}>·</span>
+                <span>{personalInfo.campusActivities}</span>
               </>
             )}
           </div>
@@ -118,9 +129,9 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             <div key={edu.id} style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                  <span style={{ fontWeight: 700, fontSize: '13px' }}>{edu.school}</span>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{edu.school}</span>
                   {edu.tags && edu.tags.map((tag, ti) => (
-                    <span key={ti} style={{ fontSize: '10px', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
+                    <span key={ti} style={{ fontSize: '10px', color: accent, backgroundColor: `${accent}18`, borderRadius: '3px', padding: '0 5px', lineHeight: '16px', display: 'inline-block', marginLeft: '4px' }}>{tag}</span>
                   ))}
                 </div>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>{edu.startDate} - {edu.endDate}</span>
@@ -147,7 +158,7 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           {workExperience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.company}</span>
+                <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{exp.company}</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>{exp.startDate} - {exp.endDate}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '2px' }}>
@@ -175,7 +186,7 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           {projectExperience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.name}</span>
+                <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{exp.name}</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>{exp.startDate} - {exp.endDate}</span>
               </div>
               {exp.role && (
@@ -200,7 +211,7 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           {organizationExperience.map((exp) => (
             <div key={exp.id} style={{ marginBottom: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.name}</span>
+                <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{exp.name}</span>
                 <span style={{ fontSize: '12px', color: '#6b7280' }}>{exp.startDate} - {exp.endDate}</span>
               </div>
               <div style={{ fontSize: '12.5px', color: '#4b5563', marginTop: '2px' }}>
@@ -224,7 +235,17 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           <div style={titleStyle}>荣誉奖项</div>
           <ul style={{ margin: 0, paddingLeft: '16px', listStyleType: 'disc' }}>
             {awards.map((award, i) => (
-              <li key={i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.7', marginBottom: '2px' }}>{award}</li>
+              <li key={award.id || i} style={{ fontSize: '12.5px', color: '#374151', lineHeight: '1.7', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 600 }}>
+                  {award.title || `奖项 ${i + 1}`}
+                  {award.date && <span style={{ color: '#6b7280', fontWeight: 400, marginLeft: '8px' }}>{award.date}</span>}
+                </span>
+                {award.description && (
+                  <div style={{ fontSize: '12px', color: '#4b5563', marginTop: '2px', lineHeight: 1.6 }}>
+                    {award.description}
+                  </div>
+                )}
+              </li>
             ))}
           </ul>
         </div>
@@ -250,7 +271,6 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             { key: 'certificates', label: '证书/执照' },
             { key: 'languages', label: '语言' },
             { key: 'hobbies', label: '兴趣爱好' },
-            { key: 'activities', label: '活动' },
           ];
           const hasAny = secs.some(s => others[s.key] && others[s.key].length > 0);
           if (!hasAny) return null;
@@ -275,4 +295,4 @@ const MinimalTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   );
 };
 
-export default MinimalTemplate;
+export default React.memo(MinimalTemplate);

@@ -8,3 +8,7 @@ data/resumes/*.json
 *.log
 .DS_Store
 .qoder
+tmp
+
+# npm auth tokens in .npmrc (CI injects token via env)
+.npmrc

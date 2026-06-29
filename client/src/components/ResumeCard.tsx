@@ -1,7 +1,54 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Resume } from '../types/resume';
 import { getTemplate } from '../templates/registry';
+
+// A4 尺寸按 96 DPI 换算的像素值（210mm × 297mm）
+const A4_WIDTH_PX = 794;
+const A4_HEIGHT_PX = 1123;
+const MIN_PREVIEW_SCALE = 0.15;
+
+function ResumePreview({ resume }: { resume: Resume }) {
+  const tpl = getTemplate(resume.templateId);
+  if (!tpl) return null;
+  const Comp = tpl.component;
+  const safeResume = {
+    ...resume,
+    personalInfo: resume.personalInfo ?? { name: '', phone: '', email: '', title: '' },
+    workExperience: resume.workExperience ?? [],
+    projectExperience: resume.projectExperience ?? [],
+    organizationExperience: resume.organizationExperience ?? [],
+    education: resume.education ?? [],
+    awards: resume.awards ?? [],
+    skills: resume.skills ?? [],
+    tags: resume.tags ?? [],
+  };
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(MIN_PREVIEW_SCALE);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      if (w > 0) setScale(w / A4_WIDTH_PX);
+    };
+    update();
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    // 用 position:relative + padding-bottom 撑开正确高度，内部绝对定位，防止模板撑开父容器
+    <div ref={containerRef} style={{ width: '100%', position: 'relative', paddingBottom: `${(A4_HEIGHT_PX / A4_WIDTH_PX) * 100}%` }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: A4_WIDTH_PX, height: A4_HEIGHT_PX, transform: `scale(${scale})`, transformOrigin: 'top left', pointerEvents: 'none', userSelect: 'none' }}>
+        <Comp resume={safeResume} />
+      </div>
+    </div>
+  );
+}
 
 const templateNameMap: Record<string, string> = {
   professional: '专业模板',
@@ -68,32 +115,14 @@ export default function ResumeCard({ resume, onDelete, onDuplicate, onRename, se
       )}
       {/* 简历预览缩略图 */}
       <div
-        className="w-full aspect-[3/4] overflow-hidden bg-gray-50 border-b border-gray-100 relative cursor-pointer group"
+        className="w-full overflow-hidden bg-gray-50 border-b border-gray-100 relative cursor-pointer group"
         onClick={() => {
           if (isRenaming) return;
           if (selectionMode) { onToggleSelect?.(resume.id); return; }
           navigate(`/editor/${resume.id}`);
         }}
       >
-        <div style={{ zoom: 0.22, pointerEvents: 'none', userSelect: 'none' }}>
-          {(() => {
-            const tpl = getTemplate(resume.templateId);
-            if (!tpl) return null;
-            const Comp = tpl.component;
-            const safeResume = {
-              ...resume,
-              personalInfo: resume.personalInfo ?? { name: '', phone: '', email: '', title: '' },
-              workExperience: resume.workExperience ?? [],
-              projectExperience: resume.projectExperience ?? [],
-              organizationExperience: resume.organizationExperience ?? [],
-              education: resume.education ?? [],
-              awards: resume.awards ?? [],
-              skills: resume.skills ?? [],
-              tags: resume.tags ?? [],
-            };
-            return <Comp resume={safeResume} />;
-          })()}
-        </div>
+        <ResumePreview resume={resume} />
         {/* hover 遮罩 */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
           <button

@@ -2,25 +2,29 @@ import React from 'react';
 import { Resume, OtherInfo } from '../types/resume';
 
 const SIDEBAR_BG = '#1e293b';
-const ACCENT = '#3b82f6';
-const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [], activities: [] };
+const DEFAULT_ACCENT = '#3b82f6';
+const DEFAULT_OTHERS: OtherInfo = { skills: [], certificates: [], languages: [], hobbies: [] };
 
 const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
-  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS } = resume;
+  const { personalInfo = {} as any, summary = '', education = [], workExperience = [], projectExperience = [], organizationExperience = [], awards = [], others = DEFAULT_OTHERS, themeColor } = resume;
   const skills = others?.skills || resume.skills || [];
+  const ACCENT = themeColor || DEFAULT_ACCENT;
+  const headerAlign = resume.headerAlignment || 'center';
 
   return (
     <div
       style={{
-        width: '210mm',
-        minHeight: '297mm',
+        width: '794px',
+        minHeight: '1123px',
+        maxHeight: '1123px',
+        overflow: 'hidden',
         margin: '0 auto',
         backgroundColor: '#ffffff',
         display: 'flex',
         boxSizing: 'border-box',
-        fontFamily: '"PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Helvetica Neue", Arial, sans-serif',
+        fontFamily: 'SimSun, "宋体", serif',
         color: '#1f2937',
-        fontSize: '13px',
+        fontSize: '12px',
         lineHeight: '1.5',
       }}
     >
@@ -33,6 +37,7 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
           padding: '36px 20px',
           boxSizing: 'border-box',
           flexShrink: 0,
+          textAlign: headerAlign,
         }}
       >
         {/* 头像 */}
@@ -111,6 +116,11 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               <span style={{ marginRight: '6px' }}>📍</span>{personalInfo.city}
             </div>
           )}
+          {personalInfo.campusActivities && (
+            <div style={{ fontSize: '12px', marginBottom: '6px', color: '#cbd5e1' }}>
+              <span style={{ marginRight: '6px' }}>🎯</span>{personalInfo.campusActivities}
+            </div>
+          )}
         </div>
 
         {/* 技能 */}
@@ -162,8 +172,18 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             </div>
             <ul style={{ margin: 0, paddingLeft: '14px', listStyleType: 'disc' }}>
               {awards.map((award, i) => (
-                <li key={i} style={{ fontSize: '11.5px', color: '#cbd5e1', lineHeight: '1.6', marginBottom: '3px' }}>
-                  {award}
+                <li key={award.id || i} style={{ fontSize: '11.5px', color: '#cbd5e1', lineHeight: '1.6', marginBottom: '6px' }}>
+                  <span style={{ color: '#e2e8f0', fontWeight: 600 }}>
+                    {award.title || `奖项 ${i + 1}`}
+                  </span>
+                  {award.date && (
+                    <span style={{ color: '#94a3b8', marginLeft: '6px' }}>{award.date}</span>
+                  )}
+                  {award.description && (
+                    <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: '2px', lineHeight: 1.5 }}>
+                      {award.description}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -177,7 +197,6 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               { key: 'certificates', label: '证书' },
               { key: 'languages', label: '语言' },
               { key: 'hobbies', label: '爱好' },
-              { key: 'activities', label: '活动' },
             ];
             const hasAny = secs.some(s => others[s.key] && others[s.key].length > 0);
             if (!hasAny) return null;
@@ -261,9 +280,9 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
               <div key={edu.id} style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, fontSize: '13px' }}>{edu.school}</span>
+                    <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{edu.school}</span>
                     {edu.tags && edu.tags.map((tag, ti) => (
-                      <span key={ti} style={{ fontSize: '10px', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
+                      <span key={ti} style={{ fontSize: '10px', color: ACCENT, border: `1px solid ${ACCENT}`, borderRadius: '3px', padding: '0 4px', lineHeight: '16px', display: 'inline-block' }}>{tag}</span>
                     ))}
                   </div>
                   <span style={{ fontSize: '12px', color: '#6b7280' }}>{edu.startDate} - {edu.endDate}</span>
@@ -301,7 +320,7 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             {workExperience.map((exp) => (
               <div key={exp.id} style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.company}</span>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{exp.company}</span>
                   <span style={{ fontSize: '12px', color: '#6b7280' }}>{exp.startDate} - {exp.endDate}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '2px' }}>
@@ -340,7 +359,7 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             {projectExperience.map((exp) => (
               <div key={exp.id} style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.name}</span>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{exp.name}</span>
                   <span style={{ fontSize: '12px', color: '#6b7280' }}>{exp.startDate} - {exp.endDate}</span>
                 </div>
                 {exp.role && (
@@ -376,7 +395,7 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
             {organizationExperience.map((exp) => (
               <div key={exp.id} style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                  <span style={{ fontWeight: 700, fontSize: '13px' }}>{exp.name}</span>
+                  <span style={{ fontWeight: 700, fontSize: '13px', color: '#111827' }}>{exp.name}</span>
                   <span style={{ fontSize: '12px', color: '#6b7280' }}>{exp.startDate} - {exp.endDate}</span>
                 </div>
                 <div style={{ fontSize: '12.5px', color: '#4b5563', marginTop: '2px' }}>
@@ -398,4 +417,4 @@ const ModernTemplate: React.FC<{ resume: Resume }> = ({ resume }) => {
   );
 };
 
-export default ModernTemplate;
+export default React.memo(ModernTemplate);

@@ -1,24 +1,43 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Resume } from '../types/resume';
+import { Resume, Award } from '../types/resume';
 import { resumeApi } from '../services/api';
+
+/** 将旧版 string[] 荣誉项迁移为新版 Award[] 结构 */
+function migrateAwards(raw: unknown): Award[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((item) => {
+    if (typeof item === 'string') {
+      return { id: crypto.randomUUID(), title: item, date: '', description: '' };
+    }
+    if (item && typeof item === 'object') {
+      const a = item as Partial<Award>;
+      return {
+        id: a.id || crypto.randomUUID(),
+        title: a.title || '',
+        date: a.date || '',
+        description: a.description || '',
+      };
+    }
+    return { id: crypto.randomUUID(), title: String(item ?? ''), date: '', description: '' };
+  });
+}
 
 /** 规范化简历数据，确保所有必要字段存在（兼容旧数据） */
 export function normalizeResume(data: any): Resume {
   return {
     ...data,
-    personalInfo: data.personalInfo || { name: '', phone: '', email: '', title: '', city: '' },
+    personalInfo: data.personalInfo || { name: '', phone: '', email: '', title: '', city: '', campusActivities: '' },
     summary: data.summary || '',
     education: data.education || [],
     workExperience: data.workExperience || [],
     projectExperience: data.projectExperience || [],
     organizationExperience: data.organizationExperience || [],
-    awards: data.awards || [],
+    awards: migrateAwards(data.awards),
     others: {
       skills: data.others?.skills || data.skills || [],
       certificates: data.others?.certificates || [],
       languages: data.others?.languages || [],
       hobbies: data.others?.hobbies || [],
-      activities: data.others?.activities || [],
     },
     tags: data.tags || [],
   };

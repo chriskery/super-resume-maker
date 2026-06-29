@@ -73,9 +73,17 @@ function ParsedPreview({ data }: { data: ParsedResumeData }) {
       {awards && awards.length > 0 && (
         <div>
           <div className="text-xs font-medium text-blue-600 mb-1">荣誉奖项 ({awards.length}条)</div>
-          {awards.map((a, i) => (
-            <div key={i} className="text-gray-700 text-xs ml-2">• {a}</div>
-          ))}
+          {awards.map((a, i) => {
+            const title = typeof a === 'string' ? a : a.title;
+            const date = typeof a === 'string' ? '' : a.date;
+            const desc = typeof a === 'string' ? '' : a.description;
+            return (
+              <div key={i} className="text-gray-700 text-xs ml-2">
+                • {title}{date ? ` (${date})` : ''}
+                {desc && <div className="text-gray-500 ml-3 line-clamp-2">{desc}</div>}
+              </div>
+            );
+          })}
         </div>
       )}
 
