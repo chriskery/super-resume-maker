@@ -1374,60 +1374,7 @@ export default function Editor() {
                 {autoSaveStatus === 'saving' ? '保存中...' : '已自动保存'}
               </span>
             )}
-            {pageCount > 1 ? (
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  {pageCount} 页
-                </span>
-                {compactMode ? (
-                  <button
-                    type="button"
-                    onClick={restoreCompact}
-                    className="text-xs px-2.5 py-1 rounded border text-gray-600 bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors flex items-center gap-1"
-                    title="还原原始布局"
-                  >
-                    {Icon.undo}
-                    还原（{Math.round(compactScale * 100)}%）
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={applySmartOnePage}
-                    className="text-xs px-2.5 py-1 rounded border text-blue-600 bg-blue-50 border-blue-200 hover:bg-blue-100 transition-colors flex items-center gap-1"
-                    title="自动调整为一页"
-                  >
-                    {Icon.sparkles}
-                    智能一页
-                  </button>
-                )}
-              </div>
-            ) : compactMode ? (
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-200 flex items-center gap-1">
-                  {Icon.sparkles}
-                  已智能压缩（{Math.round(compactScale * 100)}%）
-                </span>
-                <button
-                  type="button"
-                  onClick={restoreCompact}
-                  className="text-xs px-2.5 py-1 rounded border text-gray-600 bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors flex items-center gap-1"
-                  title="还原原始布局"
-                >
-                  {Icon.undo}
-                  还原
-                </button>
-              </div>
-            ) : (
-              <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200 flex items-center gap-1">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                单页
-              </span>
-            )}
+            
             <div data-onboarding="export"><ExportButton documentTitle={data.title || '我的简历'} getPrintRef={() => previewRef.current} compactScale={compactMode ? compactScale : undefined} /></div>
           </div>
         </div>
