@@ -3,6 +3,9 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Resume, WorkExperience, ProjectExperience, OrganizationExperience, Skill, Education, OtherInfo, Award } from '../types/resume';
 import { useResume } from '../hooks/useResume';
 import { getTemplate, templateRegistry } from '../templates/registry';
+import TemplateBuilder from '../templates/TemplateBuilder';
+import { UnifiedRenderer } from '../templates/unified/UnifiedRenderer';
+import type { TemplateConfig } from '../templates/unified/types';
 import ExportButton from '../components/ExportButton';
 import TemplatePicker from '../components/TemplatePicker';
 import PersonalInfoForm from '../components/sections/PersonalInfoForm';
@@ -883,7 +886,7 @@ export default function Editor() {
   const [editingId, setEditingId] = useState<SectionId | null>(null);
   const [showAIImport, setShowAIImport] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [leftTab, setLeftTab] = useState<'edit' | 'template'>('edit');
+  const [leftTab, setLeftTab] = useState<'edit' | 'template' | 'settings'>('edit');
   const [hiddenSections, setHiddenSections] = useState<Set<SectionId>>(new Set());
   const [expandedSections, setExpandedSections] = useState<Set<SectionId>>(() => new Set(ALL_SECTION_IDS));
   const [compactMode, setCompactMode] = useState(false);
@@ -1181,13 +1184,42 @@ export default function Editor() {
   const templateInfo = getTemplate(data.templateId);
   const TemplateComponent = templateInfo?.component;
 
+  /* ─── Effective template config (base + custom overrides) ─── */
+  const effectiveTemplateConfig: TemplateConfig = useMemo(() => {
+    const base = templateInfo?.config;
+    if (!base) {
+      return {
+        id: data.templateId, name: '', layout: { type: 'single-column' as const, containerPadding: '28px 32px' },
+        palette: { primary: '#5281F5', background: '#ffffff', text: '#1f2937', textSecondary: '#4b5563', textTertiary: '#6b7280' },
+        typography: { fontFamily: 'SimSun', nameSize: '26px', sectionTitleSize: '14px', itemTitleSize: '13px', bodySize: '12px', lineHeight: 1.5 },
+        spacing: { sectionGap: '12px', itemGap: '8px', bulletGap: '1px' },
+        header: { alignment: 'center' as const, showPhoto: true, photoPosition: 'top-right' as const, photoSize: '88px', photoBorderRadius: '50%', separator: '|', showIcons: true, showJobTitle: false },
+        sectionTitle: { style: 'icon-circle' as const, fontSize: '14px', fontWeight: 700 },
+        sectionOrder: ['summary', 'education', 'workExperience', 'projectExperience', 'organizationExperience', 'awards', 'skills', 'others'],
+      };
+    }
+    if (!data.customTemplateConfig) return base;
+    // shallow merge top-level keys, but deep merge nested objects
+    const custom = data.customTemplateConfig;
+    return {
+      ...base,
+      ...custom,
+      layout: { ...base.layout, ...(custom.layout || {}) },
+      palette: { ...base.palette, ...(custom.palette || {}) },
+      typography: { ...base.typography, ...(custom.typography || {}) },
+      spacing: { ...base.spacing, ...(custom.spacing || {}) },
+      header: { ...base.header, ...(custom.header || {}) },
+      sectionTitle: { ...base.sectionTitle, ...(custom.sectionTitle || {}) },
+      sectionOrder: custom.sectionOrder || base.sectionOrder,
+    };
+  }, [templateInfo, data.templateId, data.customTemplateConfig]);
+
   /* ─── Preview scale ─── */
   const [previewScale, setPreviewScale] = useState(1);
   const previewContainerRef = useRef<HTMLDivElement | null>(null);
   const obsRef = useRef<ResizeObserver | null>(null);
   const A4_WIDTH = 794;
   const A4_HEIGHT = 1122;
-  const [pageCount, setPageCount] = useState(1);
 
   const previewContainerCallback = useCallback((el: HTMLDivElement | null) => {
     previewContainerRef.current = el;
@@ -1201,75 +1233,6 @@ export default function Editor() {
     const obs = new ResizeObserver(update);
     obs.observe(el);
     obsRef.current = obs;
-  }, []);
-
-  /* ─── Sync page count with preview content height (考虑智能压缩后的视觉高度) ─── */
-  useEffect(() => {
-    const el = previewRef.current;
-    if (!el) return;
-    const update = () => {
-      const effectiveScale = compactMode ? compactScale : 1;
-      const effectiveHeight = el.scrollHeight * effectiveScale;
-      const pages = Math.max(1, Math.ceil(effectiveHeight / A4_HEIGHT));
-      setPageCount(pages);
-    };
-    update();
-    const obs = new ResizeObserver(update);
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [data, previewScale, compactMode, compactScale]);
-
-  /* ─── Smart one-page: 智能压缩为一页 ─── */
-  const applySmartOnePage = useCallback(() => {
-    if (compactMode) return;
-    if (pageCount <= 1) {
-      setToast({ message: '当前已是一页，无需调整', type: 'success' });
-      return;
-    }
-
-    const MIN_SCALE = 0.88;
-    const requiredScale = 1 / pageCount;
-
-    let scale = 1;
-    const hidden = new Set<SectionId>();
-
-    if (requiredScale >= MIN_SCALE) {
-      // 仅缩放即可压到一页
-      scale = requiredScale;
-    } else {
-      // 需要缩放 + 隐藏次要栏目
-      scale = MIN_SCALE;
-      const remainingPages = pageCount * MIN_SCALE;
-      if (remainingPages > 1) {
-        // 按优先级隐藏（社团 > 奖项 > 其他），每隐藏一个估计减少 25% 高度
-        const HIDE_PRIORITY: SectionId[] = ['organizationExperience', 'awards', 'others'];
-        let estPages = remainingPages;
-        for (const sid of HIDE_PRIORITY) {
-          if (estPages <= 1) break;
-          hidden.add(sid);
-          estPages *= 0.75;
-        }
-      }
-    }
-
-    setCompactMode(true);
-    setCompactScale(scale);
-    setCompactHidden(hidden);
-
-    const pct = Math.round(scale * 100);
-    if (hidden.size === 0) {
-      setToast({ message: `已智能压缩到 1 页（缩放 ${pct}%）`, type: 'success' });
-    } else {
-      const labels = Array.from(hidden).map((s) => SECTION_LABELS[s]).join('、');
-      setToast({ message: `已智能压缩到 1 页（缩放 ${pct}%，隐藏 ${labels}）`, type: 'success' });
-    }
-  }, [compactMode, pageCount]);
-
-  const restoreCompact = useCallback(() => {
-    setCompactMode(false);
-    setCompactScale(1);
-    setCompactHidden(new Set());
-    setToast({ message: '已还原原始布局', type: 'success' });
   }, []);
 
   /* ─── Drag-to-reorder helpers ─── */
@@ -1387,7 +1350,8 @@ export default function Editor() {
           {([
             { tab: 'edit', label: '编辑', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> },
             { tab: 'template', label: '模板', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg> },
-          ] as { tab: 'edit' | 'template'; label: string; icon: React.ReactNode }[]).map(({ tab, label, icon }) => (
+            { tab: 'settings', label: '设置', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg> },
+          ] as { tab: 'edit' | 'template' | 'settings'; label: string; icon: React.ReactNode }[]).map(({ tab, label, icon }) => (
             <button
               key={tab}
               type="button"
@@ -1498,6 +1462,15 @@ export default function Editor() {
                   );
                 })}
               </div>
+            </div>
+          ) : leftTab === 'settings' ? (
+            /* Template settings panel */
+            <div className="flex-1 overflow-y-auto p-3">
+              <TemplateBuilder
+                currentConfig={effectiveTemplateConfig}
+                onChange={(newCfg) => updateField('customTemplateConfig', newCfg)}
+                resume={data}
+              />
             </div>
           ) : (
           <div className="flex-1 overflow-y-auto p-5">
@@ -1721,7 +1694,7 @@ export default function Editor() {
                   }}
                 >
                   {TemplateComponent ? (
-                    <TemplateComponent resume={previewData} />
+                    <UnifiedRenderer resume={previewData} config={effectiveTemplateConfig} />
                   ) : (
                     <div className="flex items-center justify-center" style={{ width: '794px', minHeight: '1123px' }}>
                       <p className="text-gray-400 text-sm">请选择模板</p>

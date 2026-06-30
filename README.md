@@ -32,7 +32,7 @@ npm run install:all
 npm run dev
 ```
 
-前端访问：http://localhost:5173
+前端访问：http://localhost:5174
 后端 API：http://localhost:3001
 
 ### 构建

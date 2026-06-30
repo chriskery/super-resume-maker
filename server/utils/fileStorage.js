@@ -42,12 +42,8 @@ async function listResumes() {
     try {
       const content = await fs.readFile(path.join(dir, file), 'utf-8');
       const data = JSON.parse(content);
-      resumes.push({
-        id: data.id,
-        title: data.title,
-        templateId: data.templateId,
-        updatedAt: data.updatedAt,
-      });
+      // 返回完整简历数据，首页卡片预览需要渲染模板缩略图
+      resumes.push(data);
     } catch (err) {
       console.warn(`Failed to parse ${file}:`, err.message);
     }

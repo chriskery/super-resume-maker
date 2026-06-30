@@ -79,12 +79,16 @@ describe('fileStorage', () => {
   describe('listResumes', () => {
     beforeAll(async () => {
       await ensureDir();
-      // Write two resumes
+      // Write two resumes with full data
       await writeResume('list-1', {
         id: 'list-1', title: '简历A', templateId: 'minimal', updatedAt: '2024-01-01',
+        personalInfo: { name: '张三', phone: '13800138000' },
+        workExperience: [],
       });
       await writeResume('list-2', {
         id: 'list-2', title: '简历B', templateId: 'modern', updatedAt: '2024-01-02',
+        personalInfo: { name: '李四', phone: '13900139000' },
+        workExperience: [],
       });
     });
 
@@ -97,7 +101,7 @@ describe('fileStorage', () => {
       expect(ids).toContain('list-2');
     });
 
-    it('should only include id, title, templateId, updatedAt in summaries', async () => {
+    it('should return full resume data including content fields', async () => {
       const list = await listResumes();
       const item = list.find(r => r.id === 'list-1');
       expect(item).toEqual(
@@ -106,6 +110,8 @@ describe('fileStorage', () => {
           title: '简历A',
           templateId: 'minimal',
           updatedAt: '2024-01-01',
+          personalInfo: { name: '张三', phone: '13800138000' },
+          workExperience: [],
         })
       );
     });

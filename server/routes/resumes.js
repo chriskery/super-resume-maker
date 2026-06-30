@@ -9,7 +9,7 @@ const {
 
 const router = express.Router();
 
-// GET /api/resumes - list all resumes (summary)
+// GET /api/resumes - list all resumes (full data for preview rendering)
 router.get('/', async (req, res) => {
   try {
     const resumes = await listResumes();

@@ -1,3 +1,5 @@
+import type { TemplateConfig } from '../templates/unified/types';
+
 export interface PersonalInfo {
   name: string;
   phone: string;
@@ -70,6 +72,13 @@ export interface Award {
   description?: string;     // 详细描述（可选）
 }
 
+export interface Award {
+  id: string;
+  title: string;            // 奖项/专利名称
+  date: string;             // 获得时间 YYYY-MM
+  description?: string;     // 详细描述（可选）
+}
+
 export interface Resume {
   id: string;
   title: string;
@@ -86,6 +95,7 @@ export interface Resume {
   skills?: Skill[];
   others: OtherInfo;
   tags: string[];
+  customTemplateConfig?: Partial<TemplateConfig>;
   createdAt: string;
   updatedAt: string;
 }
