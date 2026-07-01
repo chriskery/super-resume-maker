@@ -33,6 +33,13 @@ function contactIcon(field: string): React.ReactNode {
   return null;
 }
 
+/* ── Alignment helper ── */
+function alignmentToJustify(alignment: string): string {
+  if (alignment === 'left') return 'flex-start';
+  if (alignment === 'right') return 'flex-end';
+  return 'center';
+}
+
 /* ── Contact item helper ── */
 function renderContactItem(
   value: string,
@@ -103,6 +110,7 @@ const TopHeader: React.FC<HeaderSectionProps> = ({ personalInfo, config }) => {
               color: config.palette.textSecondary,
               display: 'flex',
               alignItems: 'center',
+              justifyContent: alignmentToJustify(config.header.alignment),
               gap: '12px',
               flexWrap: 'wrap',
             }}
@@ -220,7 +228,7 @@ const CenterHeader: React.FC<HeaderSectionProps> = ({ personalInfo, config }) =>
             fontSize: config.typography.bodySize,
             color: 'rgba(255,255,255,0.9)',
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: alignmentToJustify(config.header.alignment),
             alignItems: 'center',
             gap: '16px',
             flexWrap: 'wrap',
@@ -260,7 +268,7 @@ const SidebarHeader: React.FC<HeaderSectionProps> = ({ personalInfo, config }) =
   ].filter(f => f.value);
 
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div style={{ textAlign: config.header.alignment }}>
       {showPhoto && (
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
           <img
@@ -283,7 +291,7 @@ const SidebarHeader: React.FC<HeaderSectionProps> = ({ personalInfo, config }) =
           fontSize: '22px',
           fontWeight: 800,
           color: '#ffffff',
-          textAlign: 'center',
+          textAlign: config.header.alignment,
           letterSpacing: '2px',
         }}
       >
@@ -291,7 +299,7 @@ const SidebarHeader: React.FC<HeaderSectionProps> = ({ personalInfo, config }) =
       </h1>
 
       {config.header.showJobTitle && personalInfo.title && (
-        <div style={{ textAlign: 'center', marginTop: '4px', fontSize: '12px', color: accent, fontWeight: 600 }}>
+        <div style={{ textAlign: config.header.alignment, marginTop: '4px', fontSize: '12px', color: accent, fontWeight: 600 }}>
           {personalInfo.title}
         </div>
       )}

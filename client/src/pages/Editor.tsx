@@ -51,7 +51,7 @@ function mergeWithMock(data: Resume): Resume {
   }
 
   // 否则用 mock 数据展示
-  return { ...mockResume, id: data.id, title: data.title, templateId: data.templateId, tags: data.tags, createdAt: data.createdAt, updatedAt: data.updatedAt };
+  return { ...mockResume, id: data.id, title: data.title, templateId: data.templateId, themeColor: data.themeColor, headerAlignment: data.headerAlignment, customTemplateConfig: data.customTemplateConfig, tags: data.tags, createdAt: data.createdAt, updatedAt: data.updatedAt };
 }
 
 type SectionId = 'personalInfo' | 'summary' | 'education' | 'workExperience' | 'projectExperience' | 'organizationExperience' | 'awards' | 'others';

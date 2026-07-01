@@ -36,12 +36,31 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span
               style={{
-                fontWeight: 700,
-                fontSize: config.typography.itemTitleSize,
-                color: config.palette.text,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '6px',
+                flexWrap: 'wrap',
               }}
             >
-              {item.title}
+              <span
+                style={{
+                  fontWeight: 700,
+                  fontSize: config.typography.itemTitleSize,
+                  color: config.palette.text,
+                }}
+              >
+                {item.title}
+              </span>
+              {item.subtitle && (
+                <span
+                  style={{
+                    fontSize: config.typography.bodySize,
+                    color: config.palette.textTertiary,
+                  }}
+                >
+                  · {item.subtitle}
+                </span>
+              )}
             </span>
             <span
               style={{
@@ -54,8 +73,8 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
               {item.startDate} - {item.endDate}
             </span>
           </div>
-          {/* Row 2: subtitle + location */}
-          {(item.subtitle || item.location) && (
+          {/* Row 2: location only */}
+          {item.location && (
             <div
               style={{
                 display: 'flex',
@@ -70,20 +89,8 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                   color: config.palette.textSecondary,
                 }}
               >
-                {item.subtitle}
+                {item.location}
               </span>
-              {item.location && (
-                <span
-                  style={{
-                    fontSize: config.typography.bodySize,
-                    color: config.palette.textTertiary,
-                    flexShrink: 0,
-                    marginLeft: '12px',
-                  }}
-                >
-                  {item.location}
-                </span>
-              )}
             </div>
           )}
           {/* Highlights */}

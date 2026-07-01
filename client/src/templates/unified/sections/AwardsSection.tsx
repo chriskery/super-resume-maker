@@ -18,8 +18,8 @@ const AwardsSection: React.FC<AwardsSectionProps> = ({ config, items }) => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span
               style={{
-                fontWeight: 600,
-                fontSize: config.typography.bodySize,
+                fontWeight: 700,
+                fontSize: config.typography.itemTitleSize,
                 color: config.palette.text,
               }}
             >
@@ -41,13 +41,32 @@ const AwardsSection: React.FC<AwardsSectionProps> = ({ config, items }) => {
           {award.description && (
             <div
               style={{
-                fontSize: config.typography.bodySize,
-                color: config.palette.textSecondary,
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '6px',
                 marginTop: '2px',
                 lineHeight: config.typography.lineHeight,
               }}
             >
-              {award.description}
+              <span
+                style={{
+                  fontSize: config.typography.bodySize,
+                  color: config.palette.textSecondary,
+                  flexShrink: 0,
+                  lineHeight: config.typography.lineHeight,
+                }}
+              >
+                •
+              </span>
+              <span
+                style={{
+                  fontSize: config.typography.bodySize,
+                  color: config.palette.textSecondary,
+                  lineHeight: config.typography.lineHeight,
+                }}
+              >
+                {award.description}
+              </span>
             </div>
           )}
         </div>
